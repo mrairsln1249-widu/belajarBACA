@@ -1,0 +1,2319 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Petualangan Baca 3D — Ultimate + Belajar 🚀</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.babylonjs.com/babylon.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  html,body{margin:0;padding:0;height:100%;overflow:hidden;font-family:'Baloo 2',system-ui,sans-serif;background:#0b1020;}
+  #renderCanvas{width:100%;height:100%;display:block;touch-action:none;outline:none;}
+  .noselect{-webkit-user-select:none;user-select:none;-webkit-tap-highlight-color:transparent;}
+  @keyframes pop{0%{transform:scale(.4);opacity:0}60%{transform:scale(1.12)}100%{transform:scale(1);opacity:1}}
+  .animate-pop{animation:pop .45s cubic-bezier(.2,1.3,.5,1) both;}
+  @keyframes floatUp{0%{transform:translate(-50%,0) scale(.7);opacity:0}20%{transform:translate(-50%,-8px) scale(1.05);opacity:1}100%{transform:translate(-50%,-90px) scale(1);opacity:0}}
+  .toast-anim{animation:floatUp 1.3s ease-out both;}
+  @keyframes pulseGlow{0%,100%{box-shadow:0 0 0 0 rgba(244,63,94,.7)}50%{box-shadow:0 0 0 10px rgba(244,63,94,0)}}
+  .pulse-glow{animation:pulseGlow .7s ease-out infinite;}
+  @keyframes comboPop{0%{transform:scale(.5) rotate(-8deg);opacity:0}60%{transform:scale(1.3) rotate(4deg)}100%{transform:scale(1) rotate(0);opacity:1}}
+  .combo-pop{animation:comboPop .5s cubic-bezier(.2,1.5,.5,1) both;}
+  @keyframes starPop{0%{transform:scale(0) rotate(-180deg)}70%{transform:scale(1.4) rotate(10deg)}100%{transform:scale(1) rotate(0)}}
+  .star-pop{animation:starPop .6s cubic-bezier(.3,1.5,.5,1) both;}
+  @keyframes floatStar{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+  .float-star{animation:floatStar 2s ease-in-out infinite;}
+  @keyframes bounceIn{0%{transform:scale(0) translateY(50px);opacity:0}60%{transform:scale(1.15) translateY(-8px);opacity:1}100%{transform:scale(1) translateY(0)}}
+  .bounce-in{animation:bounceIn .6s cubic-bezier(.2,1.3,.5,1) both;}
+  @keyframes confettiFall{0%{transform:translateY(-100vh) rotate(0);opacity:1}100%{transform:translateY(100vh) rotate(720deg);opacity:0}}
+  .confetti-piece{position:absolute;top:0;width:10px;height:16px;animation:confettiFall 3s linear forwards;pointer-events:none;}
+  @keyframes giftShake{0%,100%{transform:rotate(-5deg) scale(1)}25%{transform:rotate(5deg) scale(1.05)}50%{transform:rotate(-5deg) scale(1.05)}75%{transform:rotate(5deg) scale(1)}}
+  .gift-shake{animation:giftShake 1s ease-in-out infinite;}
+  @keyframes recPulse{0%,100%{box-shadow:0 0 0 0 rgba(239,68,68,.7)}50%{box-shadow:0 0 0 14px rgba(239,68,68,0)}}
+  .rec-pulse{animation:recPulse 1s ease-out infinite;}
+  .glass{background:rgba(255,255,255,.10);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border:2px solid rgba(255,255,255,.22);}
+  .btn3d{transition:transform .12s ease, box-shadow .12s ease;}
+  .btn3d:active{transform:translateY(4px) scale(.98);}
+  @keyframes shine{0%{background-position:-200% 0}100%{background-position:200% 0}}
+  .shine{background:linear-gradient(90deg,#fde68a,#fff,#fbbf24,#fff,#fde68a);background-size:200% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:shine 2.5s linear infinite;}
+  .diff-btn{transition:all .15s ease;border:2px solid transparent;}
+  .diff-btn.active{background:linear-gradient(180deg,#fbbf24,#f59e0b);border-color:#fff;box-shadow:0 0 20px rgba(251,191,36,.6);transform:scale(1.05);}
+  .lvl-node{transition:all .2s ease;cursor:pointer;}
+  .lvl-node:hover:not(.locked){transform:scale(1.12) translateY(-3px);}
+  .lvl-node.locked{cursor:not-allowed;}
+  .lvl-node.locked .node-circle{filter:grayscale(1) brightness(.5);}
+  .world-card{transition:all .3s ease;}
+  .world-card.locked{filter:grayscale(.7) brightness(.7);}
+  .item-card{transition:all .2s ease;}
+  .item-card:hover:not(.owned){transform:translateY(-4px);box-shadow:0 12px 30px rgba(0,0,0,.5);}
+  .item-card.locked .item-emoji{filter:grayscale(1) brightness(.4);}
+  input[type=range]{-webkit-appearance:none;appearance:none;height:8px;border-radius:4px;background:rgba(255,255,255,.2);outline:none;}
+  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:24px;height:24px;border-radius:50%;background:linear-gradient(135deg,#fbbf24,#f59e0b);cursor:pointer;border:3px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,.4);}
+  input[type=range]::-moz-range-thumb{width:24px;height:24px;border-radius:50%;background:linear-gradient(135deg,#fbbf24,#f59e0b);cursor:pointer;border:3px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,.4);}
+  ::-webkit-scrollbar{width:6px}
+  ::-webkit-scrollbar-thumb{background:rgba(255,255,255,.2);border-radius:3px}
+</style>
+</head>
+<body class="noselect">
+
+<div class="fixed inset-0 overflow-hidden">
+  <canvas id="renderCanvas"></canvas>
+
+  <!-- HUD -->
+  <div id="hud" class="absolute inset-x-0 top-0 z-20 px-2 py-2 md:px-4 md:py-3 flex items-center gap-1.5 md:gap-3 opacity-0 pointer-events-none transition-opacity duration-500">
+    <button id="btnHome" class="pointer-events-auto w-10 h-10 md:w-12 md:h-12 rounded-2xl glass text-white text-lg md:text-xl grid place-items-center btn3d shadow-lg hover:bg-white/20">🏠</button>
+    <div id="levelBadge" class="hidden pointer-events-auto glass rounded-2xl px-2 md:px-3 py-1.5 flex items-center gap-1.5 shadow-lg">
+      <span id="levelIcon" class="text-base md:text-lg">🌳</span>
+      <span id="levelName" class="text-white font-extrabold text-[10px] md:text-sm leading-none">Hutan 1/3</span>
+    </div>
+    <div class="flex-1 h-3.5 md:h-5 rounded-full bg-black/40 border border-white/20 overflow-hidden shadow-inner">
+      <div id="progressBar" class="h-full w-0 rounded-full bg-gradient-to-r from-emerald-400 via-lime-400 to-yellow-300 transition-all duration-500" style="box-shadow:0 0 14px rgba(163,230,53,.8)"></div>
+    </div>
+    <div id="livesWrap" class="hidden glass rounded-2xl px-2 md:px-3 py-1.5 items-center gap-1 shadow-lg">
+      <span id="livesText" class="text-base md:text-xl leading-none tracking-tight">❤️❤️❤️</span>
+    </div>
+    <div class="glass rounded-2xl px-2 md:px-3 py-1.5 flex items-center gap-1 shadow-lg">
+      <span class="text-base md:text-lg">🪙</span>
+      <span id="hudCoins" class="text-yellow-200 font-extrabold text-xs md:text-base leading-none">0</span>
+    </div>
+    <div class="glass rounded-2xl px-2.5 md:px-4 py-1.5 flex items-center gap-1.5 shadow-lg">
+      <span class="text-base md:text-xl">⭐</span>
+      <span id="scoreText" class="text-white font-extrabold text-xs md:text-xl leading-none">0</span>
+    </div>
+    <button id="btnMusicHud" class="pointer-events-auto w-10 h-10 md:w-12 md:h-12 rounded-2xl glass text-white text-lg md:text-xl grid place-items-center btn3d shadow-lg hover:bg-white/20" title="Musik">🎵</button>
+    <button id="btnSound" class="pointer-events-auto w-10 h-10 md:w-12 md:h-12 rounded-2xl glass text-white text-lg md:text-xl grid place-items-center btn3d shadow-lg hover:bg-white/20" title="Efek suara">🔊</button>
+  </div>
+
+  <!-- Boss bar -->
+  <div id="bossWrap" class="absolute top-20 md:top-24 left-1/2 -translate-x-1/2 z-15 hidden">
+    <div class="glass rounded-2xl px-4 py-2 shadow-2xl flex items-center gap-3 border-2 border-rose-400/50">
+      <div id="bossEmoji" class="text-3xl md:text-4xl drop-shadow-lg">👹</div>
+      <div class="flex flex-col">
+        <div class="text-white/80 text-[10px] md:text-xs font-bold uppercase tracking-wider">Boss</div>
+        <div class="w-32 md:w-44 h-3 md:h-4 rounded-full bg-black/50 border border-white/20 overflow-hidden">
+          <div id="bossHp" class="h-full w-full rounded-full bg-gradient-to-r from-rose-400 to-red-600 transition-all duration-500"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Panel pertanyaan -->
+  <div id="qPanel" class="absolute inset-x-0 top-0 z-10 pt-[3.75rem] md:pt-24 px-3 flex flex-col items-center pointer-events-none opacity-0 transition-opacity duration-500">
+    <div class="glass rounded-[1.75rem] px-4 py-3 md:px-8 md:py-4 shadow-2xl max-w-3xl w-full">
+      <div class="flex items-center gap-3 md:gap-6">
+        <div id="qEmoji" class="text-3xl md:text-6xl leading-none drop-shadow-[0_4px_10px_rgba(0,0,0,.5)]">🍎</div>
+        <div class="flex flex-col min-w-0 flex-1">
+          <div id="qPrompt" class="text-white/70 text-[10px] md:text-sm font-semibold uppercase tracking-wider">Huruf awal dari kata ini?</div>
+          <div id="qWord" class="text-white text-xl md:text-4xl font-extrabold tracking-wider drop-shadow-lg truncate">?PEL</div>
+        </div>
+        <button id="btnRecord" class="pointer-events-auto shrink-0 w-10 h-10 md:w-12 md:h-12 rounded-2xl bg-gradient-to-br from-rose-400 to-red-600 text-white text-lg md:text-2xl grid place-items-center btn3d shadow-lg shadow-red-900/50" title="Rekam suaramu">🎤</button>
+        <button id="btnRepeat" class="pointer-events-auto shrink-0 w-10 h-10 md:w-14 md:h-14 rounded-2xl bg-gradient-to-br from-sky-400 to-indigo-500 text-white text-lg md:text-2xl grid place-items-center btn3d shadow-lg shadow-indigo-900/50">🔊</button>
+      </div>
+      <div id="timerWrap" class="mt-3 h-2 rounded-full bg-black/40 overflow-hidden hidden">
+        <div id="timerBar" class="h-full w-full rounded-full bg-gradient-to-r from-emerald-400 via-lime-400 to-yellow-300" style="transition:width .1s linear, background-color .3s;"></div>
+      </div>
+    </div>
+  </div>
+
+  <button id="btnHint" class="absolute bottom-5 right-5 md:bottom-8 md:right-8 z-20 hidden w-14 h-14 md:w-16 md:h-16 rounded-full bg-gradient-to-br from-yellow-300 to-amber-500 border-b-4 border-amber-700 text-2xl md:text-3xl grid place-items-center shadow-2xl btn3d">
+    💡<span id="hintCount" class="absolute -top-1 -right-1 bg-rose-500 text-white text-xs font-extrabold rounded-full w-6 h-6 grid place-items-center border-2 border-white shadow-lg">3</span>
+  </button>
+
+  <div id="toast" class="absolute left-1/2 top-1/2 z-30 -translate-x-1/2 hidden">
+    <div class="px-7 py-4 rounded-3xl text-2xl md:text-4xl font-extrabold text-white shadow-2xl"></div>
+  </div>
+
+  <div id="comboBadge" class="absolute top-1/2 left-4 md:left-10 z-20 hidden">
+    <div class="combo-pop flex flex-col items-center">
+      <div class="text-5xl md:text-7xl">🔥</div>
+      <div id="comboText" class="text-3xl md:text-5xl font-extrabold text-yellow-300 drop-shadow-[0_2px_0_rgba(0,0,0,.5)]">×2</div>
+      <div class="text-white/90 text-xs md:text-sm font-bold uppercase tracking-wide">Combo!</div>
+    </div>
+  </div>
+
+  <!-- MENU UTAMA -->
+  <div id="menuScreen" class="absolute inset-0 z-40 flex flex-col items-center justify-start px-3 py-4 overflow-y-auto">
+    <div class="w-full max-w-3xl flex justify-end mb-1">
+      <button id="btnSettings" class="w-11 h-11 rounded-2xl glass text-white text-xl grid place-items-center btn3d hover:bg-white/20 shadow-lg" title="Pengaturan">⚙️</button>
+    </div>
+
+    <div class="text-center mb-3 md:mb-4 animate-pop">
+      <div class="text-4xl md:text-6xl mb-1">🚀</div>
+      <h1 class="text-3xl md:text-5xl font-extrabold shine drop-shadow-lg">Petualangan Baca 3D</h1>
+      <p class="text-white/70 text-xs md:text-base mt-1 font-semibold">Belajar membaca jadi petualangan seru!</p>
+    </div>
+
+    <div class="grid grid-cols-4 gap-2 md:gap-3 w-full max-w-3xl mb-3 md:mb-4">
+      <div class="glass rounded-2xl px-2 py-2 text-center shadow-lg"><div class="text-lg md:text-2xl">⭐</div><div id="menuStars" class="text-white text-sm md:text-xl font-extrabold leading-tight">0</div><div class="text-white/50 text-[9px] md:text-xs font-bold uppercase">Bintang</div></div>
+      <div class="glass rounded-2xl px-2 py-2 text-center shadow-lg"><div class="text-lg md:text-2xl">🪙</div><div id="menuCoins" class="text-yellow-200 text-sm md:text-xl font-extrabold leading-tight">0</div><div class="text-white/50 text-[9px] md:text-xs font-bold uppercase">Koin</div></div>
+      <div class="glass rounded-2xl px-2 py-2 text-center shadow-lg"><div class="text-lg md:text-2xl">🔥</div><div id="menuStreak" class="text-white text-sm md:text-xl font-extrabold leading-tight">0</div><div class="text-white/50 text-[9px] md:text-xs font-bold uppercase">Streak</div></div>
+      <div class="glass rounded-2xl px-2 py-2 text-center shadow-lg"><div class="text-lg md:text-2xl">📚</div><div id="menuAlbum" class="text-white text-sm md:text-xl font-extrabold leading-tight">0/10</div><div class="text-white/50 text-[9px] md:text-xs font-bold uppercase">Koleksi</div></div>
+    </div>
+
+    <div class="grid grid-cols-2 gap-2.5 md:gap-4 w-full max-w-3xl mb-3">
+      <button id="btnAdventure" class="col-span-2 group rounded-3xl p-4 md:p-5 text-left btn3d shadow-2xl border-b-[6px] border-indigo-800 bg-gradient-to-br from-indigo-400 via-purple-500 to-indigo-600">
+        <div class="flex items-start gap-3">
+          <div class="text-4xl md:text-5xl group-hover:scale-110 transition-transform">🗺️</div>
+          <div class="flex-1">
+            <div class="text-white font-extrabold text-lg md:text-2xl leading-tight">Mulai Petualangan</div>
+            <div class="text-white/80 text-xs md:text-sm font-semibold mt-0.5">4 dunia · 13 level · boss fight!</div>
+          </div>
+        </div>
+      </button>
+      <button id="btnFreeplay" class="rounded-2xl md:rounded-3xl p-3 md:p-4 text-left btn3d shadow-2xl border-b-[5px] border-emerald-800 bg-gradient-to-br from-emerald-400 to-emerald-600"><div class="text-3xl md:text-4xl mb-1">🎯</div><div class="text-white font-extrabold text-sm md:text-lg leading-tight">Latihan Bebas</div><div class="text-white/80 text-[10px] md:text-xs font-semibold">Pilih sendiri</div></button>
+      <button id="btnBelajar" class="rounded-2xl md:rounded-3xl p-3 md:p-4 text-left btn3d shadow-2xl border-b-[5px] border-teal-800 bg-gradient-to-br from-teal-400 to-cyan-600"><div class="text-3xl md:text-4xl mb-1">🔤</div><div class="text-white font-extrabold text-sm md:text-lg leading-tight">Belajar Yuk!</div><div class="text-white/80 text-[10px] md:text-xs font-semibold">Huruf · Kata · Kalimat</div></button>
+      <button id="btnAlbum" class="rounded-2xl md:rounded-3xl p-3 md:p-4 text-left btn3d shadow-2xl border-b-[5px] border-fuchsia-800 bg-gradient-to-br from-fuchsia-400 to-fuchsia-600"><div class="text-3xl md:text-4xl mb-1">📚</div><div class="text-white font-extrabold text-sm md:text-lg leading-tight">Album Koleksi</div><div class="text-white/80 text-[10px] md:text-xs font-semibold"><span id="albumCount">0</span>/10 karakter</div></button>
+      <button id="btnShop" class="rounded-2xl md:rounded-3xl p-3 md:p-4 text-left btn3d shadow-2xl border-b-[5px] border-amber-800 bg-gradient-to-br from-amber-400 to-orange-500"><div class="text-3xl md:text-4xl mb-1">🛒</div><div class="text-white font-extrabold text-sm md:text-lg leading-tight">Toko</div><div class="text-white/80 text-[10px] md:text-xs font-semibold">Topi &amp; warna</div></button>
+      <button id="btnAchievements" class="rounded-2xl md:rounded-3xl p-3 md:p-4 text-left btn3d shadow-2xl border-b-[5px] border-sky-800 bg-gradient-to-br from-sky-400 to-sky-600"><div class="text-3xl md:text-4xl mb-1">🏅</div><div class="text-white font-extrabold text-sm md:text-lg leading-tight">Pencapaian</div><div class="text-white/80 text-[10px] md:text-xs font-semibold"><span id="achCount">0</span>/12</div></button>
+      <button id="btnStory" class="rounded-2xl md:rounded-3xl p-3 md:p-4 text-left btn3d shadow-2xl border-b-[5px] border-rose-800 bg-gradient-to-br from-rose-400 to-rose-600"><div class="text-3xl md:text-4xl mb-1">📖</div><div class="text-white font-extrabold text-sm md:text-lg leading-tight">Cerita</div><div class="text-white/80 text-[10px] md:text-xs font-semibold">Halaman terkumpul</div></button>
+    </div>
+
+    <div class="mt-1 md:mt-3 glass rounded-2xl px-4 py-2.5 text-white/80 text-[10px] md:text-xs font-semibold text-center max-w-xl">
+      💡 <span class="text-white">Tips:</span> Dampingi anak, rayakan setiap keberhasilan, dan biarkan mereka memilih karakter favoritnya!
+    </div>
+  </div>
+
+  <!-- PETA -->
+  <div id="adventureScreen" class="absolute inset-0 z-40 hidden flex-col bg-slate-950/95 backdrop-blur-md overflow-y-auto">
+    <div class="sticky top-0 z-10 glass border-b-2 border-white/20 px-3 md:px-4 py-2.5 flex items-center gap-2.5">
+      <button id="btnAdventureBack" class="w-10 h-10 md:w-11 md:h-11 rounded-2xl glass text-white text-xl grid place-items-center btn3d hover:bg-white/20">←</button>
+      <div class="flex-1"><h2 class="text-white font-extrabold text-base md:text-xl leading-tight">Peta Petualangan</h2><p class="text-white/60 text-[10px] md:text-xs font-semibold">Selesaikan level untuk membuka dunia baru</p></div>
+      <div class="glass rounded-2xl px-2.5 py-1.5 flex items-center gap-1.5 shadow-lg"><span class="text-base md:text-lg">⭐</span><span class="text-white font-extrabold text-sm md:text-lg leading-none"><span id="mapTotalStars">0</span></span></div>
+    </div>
+    <div id="worldsContainer" class="px-3 md:px-6 py-3 md:py-5 space-y-3 md:space-y-5 max-w-4xl mx-auto w-full"></div>
+    <div class="pb-6"></div>
+  </div>
+
+  <!-- LATIHAN BEBAS -->
+  <div id="freeplayScreen" class="absolute inset-0 z-40 hidden flex-col items-center justify-center px-3 py-4 overflow-y-auto">
+    <div class="absolute top-4 left-4 z-10"><button id="btnFreeplayBack" class="w-10 h-10 md:w-11 md:h-11 rounded-2xl glass text-white text-xl grid place-items-center btn3d hover:bg-white/20">←</button></div>
+    <div class="text-center mb-3 animate-pop"><div class="text-4xl md:text-5xl mb-1">🎯</div><h1 class="text-2xl md:text-4xl font-extrabold shine">Latihan Bebas</h1></div>
+    <div class="mb-3 w-full max-w-3xl">
+      <p class="text-white/60 text-[10px] md:text-xs text-center uppercase tracking-widest font-bold mb-1.5">Tingkat Kesulitan</p>
+      <div id="diffSelector" class="flex gap-2 md:gap-3 justify-center flex-wrap">
+        <button data-diff="easy" class="diff-btn active rounded-2xl px-3 md:px-5 py-2 bg-white/10 backdrop-blur flex items-center gap-2 btn3d"><span class="text-lg md:text-2xl">🌱</span><div class="text-white font-extrabold text-xs md:text-sm">Mudah</div></button>
+        <button data-diff="medium" class="diff-btn rounded-2xl px-3 md:px-5 py-2 bg-white/10 backdrop-blur flex items-center gap-2 btn3d"><span class="text-lg md:text-2xl">🔥</span><div class="text-white font-extrabold text-xs md:text-sm">Sedang</div></button>
+        <button data-diff="hard" class="diff-btn rounded-2xl px-3 md:px-5 py-2 bg-white/10 backdrop-blur flex items-center gap-2 btn3d"><span class="text-lg md:text-2xl">💎</span><div class="text-white font-extrabold text-xs md:text-sm">Sulit</div></button>
+      </div>
+    </div>
+    <div class="grid grid-cols-2 gap-2 md:gap-3 w-full max-w-3xl">
+      <button data-mode="letter" class="modeBtn rounded-2xl p-3 text-left btn3d shadow-2xl border-b-[4px] border-emerald-800 bg-gradient-to-br from-emerald-400 to-emerald-600"><div class="text-2xl md:text-4xl mb-1">🔤</div><div class="text-white font-extrabold text-sm md:text-lg">Kenali Huruf</div></button>
+      <button data-mode="syllable" class="modeBtn rounded-2xl p-3 text-left btn3d shadow-2xl border-b-[4px] border-sky-800 bg-gradient-to-br from-sky-400 to-sky-600"><div class="text-2xl md:text-4xl mb-1">🧩</div><div class="text-white font-extrabold text-sm md:text-lg">Suku Kata</div></button>
+      <button data-mode="word" class="modeBtn rounded-2xl p-3 text-left btn3d shadow-2xl border-b-[4px] border-fuchsia-800 bg-gradient-to-br from-fuchsia-400 to-fuchsia-600"><div class="text-2xl md:text-4xl mb-1">📖</div><div class="text-white font-extrabold text-sm md:text-lg">Baca Kata</div></button>
+      <button data-mode="sentence" class="modeBtn rounded-2xl p-3 text-left btn3d shadow-2xl border-b-[4px] border-amber-800 bg-gradient-to-br from-amber-400 to-orange-500"><div class="text-2xl md:text-4xl mb-1">✨</div><div class="text-white font-extrabold text-sm md:text-lg">Baca Kalimat</div></button>
+    </div>
+  </div>
+
+  <!-- ALBUM -->
+  <div id="albumScreen" class="absolute inset-0 z-40 hidden flex-col bg-slate-950/95 backdrop-blur-md overflow-y-auto">
+    <div class="sticky top-0 z-10 glass border-b-2 border-white/20 px-3 md:px-4 py-2.5 flex items-center gap-2.5">
+      <button id="btnAlbumBack" class="w-10 h-10 md:w-11 md:h-11 rounded-2xl glass text-white text-xl grid place-items-center btn3d hover:bg-white/20">←</button>
+      <div class="flex-1"><h2 class="text-white font-extrabold text-base md:text-xl leading-tight">📚 Album Koleksi</h2><p class="text-white/60 text-[10px] md:text-xs font-semibold">Kumpulkan karakter dengan main level!</p></div>
+    </div>
+    <div id="albumContainer" class="px-3 md:px-6 py-4 grid grid-cols-3 md:grid-cols-5 gap-3 max-w-4xl mx-auto w-full"></div>
+    <div class="pb-6"></div>
+  </div>
+
+  <!-- TOKO -->
+  <div id="shopScreen" class="absolute inset-0 z-40 hidden flex-col bg-slate-950/95 backdrop-blur-md overflow-y-auto">
+    <div class="sticky top-0 z-10 glass border-b-2 border-white/20 px-3 md:px-4 py-2.5 flex items-center gap-2.5">
+      <button id="btnShopBack" class="w-10 h-10 md:w-11 md:h-11 rounded-2xl glass text-white text-xl grid place-items-center btn3d hover:bg-white/20">←</button>
+      <div class="flex-1"><h2 class="text-white font-extrabold text-base md:text-xl leading-tight">🛒 Toko</h2><p class="text-white/60 text-[10px] md:text-xs font-semibold">Hias kucing pintarmu!</p></div>
+      <div class="glass rounded-2xl px-3 py-1.5 flex items-center gap-1.5 shadow-lg"><span class="text-base md:text-lg">🪙</span><span id="shopCoins" class="text-yellow-200 font-extrabold text-sm md:text-lg leading-none">0</span></div>
+    </div>
+    <div class="px-3 md:px-6 py-4 max-w-4xl mx-auto w-full">
+      <h3 class="text-white font-extrabold text-sm md:text-lg mb-2">🎩 Topi</h3>
+      <div id="hatsContainer" class="grid grid-cols-3 md:grid-cols-4 gap-3 mb-6"></div>
+      <h3 class="text-white font-extrabold text-sm md:text-lg mb-2">🎨 Warna Bulu</h3>
+      <div id="colorsContainer" class="grid grid-cols-3 md:grid-cols-4 gap-3"></div>
+    </div>
+  </div>
+
+  <!-- PENCAPAIAN -->
+  <div id="achScreen" class="absolute inset-0 z-40 hidden flex-col bg-slate-950/95 backdrop-blur-md overflow-y-auto">
+    <div class="sticky top-0 z-10 glass border-b-2 border-white/20 px-3 md:px-4 py-2.5 flex items-center gap-2.5">
+      <button id="btnAchBack" class="w-10 h-10 md:w-11 md:h-11 rounded-2xl glass text-white text-xl grid place-items-center btn3d hover:bg-white/20">←</button>
+      <div class="flex-1"><h2 class="text-white font-extrabold text-base md:text-xl leading-tight">🏅 Pencapaian</h2><p class="text-white/60 text-[10px] md:text-xs font-semibold">Kumpulkan semua lencana!</p></div>
+    </div>
+    <div id="achContainer" class="px-3 md:px-6 py-4 grid grid-cols-1 md:grid-cols-2 gap-3 max-w-4xl mx-auto w-full"></div>
+  </div>
+
+  <!-- CERITA -->
+  <div id="storyScreen" class="absolute inset-0 z-40 hidden flex-col bg-slate-950/95 backdrop-blur-md overflow-y-auto">
+    <div class="sticky top-0 z-10 glass border-b-2 border-white/20 px-3 md:px-4 py-2.5 flex items-center gap-2.5">
+      <button id="btnStoryBack" class="w-10 h-10 md:w-11 md:h-11 rounded-2xl glass text-white text-xl grid place-items-center btn3d hover:bg-white/20">←</button>
+      <div class="flex-1"><h2 class="text-white font-extrabold text-base md:text-xl leading-tight">📖 Cerita</h2><p class="text-white/60 text-[10px] md:text-xs font-semibold">Baca cerita yang sudah kamu buka!</p></div>
+    </div>
+    <div id="storyContainer" class="px-3 md:px-6 py-4 space-y-4 max-w-3xl mx-auto w-full"></div>
+    <div class="pb-6"></div>
+  </div>
+
+  <!-- BELAJAR YUK -->
+  <div id="belajarScreen" class="absolute inset-0 z-40 hidden flex-col bg-slate-950/95 backdrop-blur-md overflow-y-auto">
+    <div class="sticky top-0 z-10 glass bg-slate-900/80 border-b-2 border-white/20 px-3 md:px-4 pt-2.5 pb-2">
+      <div class="flex items-center gap-2.5">
+        <button id="btnBelajarBack" class="w-10 h-10 md:w-11 md:h-11 rounded-2xl glass text-white text-xl grid place-items-center btn3d hover:bg-white/20">←</button>
+        <div class="flex-1"><h2 class="text-white font-extrabold text-base md:text-xl leading-tight">🔤 Belajar Yuk!</h2><p class="text-white/60 text-[10px] md:text-xs font-semibold">Kenali huruf, kata, dan kalimat</p></div>
+        <div class="glass rounded-2xl px-3 py-1.5 flex items-center gap-1.5 shadow-lg"><span class="text-base md:text-lg">🪙</span><span id="belajarCoins" class="text-yellow-200 font-extrabold text-sm md:text-lg leading-none">0</span></div>
+      </div>
+      <div id="belajarTabs" class="flex gap-2 overflow-x-auto mt-2 pb-1"><button class="belajar-tab btn3d shrink-0 whitespace-nowrap rounded-2xl px-3 md:px-4 py-1.5 font-extrabold text-xs md:text-sm border-2" data-tab="alphabet">🔤 Huruf</button><button class="belajar-tab btn3d shrink-0 whitespace-nowrap rounded-2xl px-3 md:px-4 py-1.5 font-extrabold text-xs md:text-sm border-2" data-tab="vocal">🎵 Vokal</button><button class="belajar-tab btn3d shrink-0 whitespace-nowrap rounded-2xl px-3 md:px-4 py-1.5 font-extrabold text-xs md:text-sm border-2" data-tab="syllable">🧩 Suku Kata</button><button class="belajar-tab btn3d shrink-0 whitespace-nowrap rounded-2xl px-3 md:px-4 py-1.5 font-extrabold text-xs md:text-sm border-2" data-tab="word">📚 Kata</button><button class="belajar-tab btn3d shrink-0 whitespace-nowrap rounded-2xl px-3 md:px-4 py-1.5 font-extrabold text-xs md:text-sm border-2" data-tab="sentence">✨ Kalimat</button></div>
+    </div>
+    <div id="belajarContent" class="px-3 md:px-6 py-4 max-w-4xl mx-auto w-full"></div>
+    <div class="pb-6"></div>
+  </div>
+
+  <!-- PENGATURAN -->
+  <div id="settingsScreen" class="absolute inset-0 z-40 hidden flex-col bg-slate-950/95 backdrop-blur-md overflow-y-auto">
+    <div class="sticky top-0 z-10 glass border-b-2 border-white/20 px-3 md:px-4 py-2.5 flex items-center gap-2.5">
+      <button id="btnSettingsBack" class="w-10 h-10 md:w-11 md:h-11 rounded-2xl glass text-white text-xl grid place-items-center btn3d hover:bg-white/20">←</button>
+      <div class="flex-1"><h2 class="text-white font-extrabold text-base md:text-xl leading-tight">⚙️ Pengaturan</h2><p class="text-white/60 text-[10px] md:text-xs font-semibold">Sesuaikan permainan</p></div>
+    </div>
+
+    <div class="px-3 md:px-6 py-4 max-w-2xl mx-auto w-full space-y-4">
+      <div class="glass rounded-2xl p-4">
+        <h3 class="text-white font-extrabold text-base md:text-lg mb-3">🔊 Suara</h3>
+        <div class="flex items-center justify-between py-2 border-b border-white/10">
+          <div class="flex items-center gap-3"><span class="text-2xl">🔊</span><div><div class="text-white font-bold text-sm md:text-base">Efek Suara</div><div class="text-white/60 text-[10px] md:text-xs">Bunyi tombol &amp; jawaban</div></div></div>
+          <button id="toggleSfx" class="w-14 h-8 rounded-full relative transition-colors" style="background:linear-gradient(90deg,#34d399,#10b981);"><span class="absolute top-1 left-1 w-6 h-6 bg-white rounded-full shadow-lg transition-all duration-200" style="left:calc(100% - 28px);"></span></button>
+        </div>
+        <div class="flex items-center justify-between py-2 border-b border-white/10">
+          <div class="flex items-center gap-3"><span class="text-2xl">🎵</span><div><div class="text-white font-bold text-sm md:text-base">Musik Latar</div><div class="text-white/60 text-[10px] md:text-xs">Melodi berubah tiap dunia</div></div></div>
+          <button id="toggleBgm" class="w-14 h-8 rounded-full relative transition-colors" style="background:rgba(255,255,255,.2);"><span class="absolute top-1 w-6 h-6 bg-white rounded-full shadow-lg transition-all duration-200" style="left:4px;"></span></button>
+        </div>
+        <div class="mt-3">
+          <div class="flex items-center justify-between mb-1.5"><span class="text-white/80 text-xs md:text-sm font-bold">Volume Musik</span><span id="bgmVolLabel" class="text-yellow-300 text-xs md:text-sm font-extrabold">50%</span></div>
+          <input type="range" id="bgmVolume" min="0" max="100" value="50" class="w-full">
+        </div>
+      </div>
+
+      <div class="glass rounded-2xl p-4">
+        <h3 class="text-white font-extrabold text-base md:text-lg mb-1">🎤 Rekam Suara Anak</h3>
+        <p class="text-white/60 text-[10px] md:text-xs mb-3">Ajak anak membaca, lalu putar kembali. Izinkan akses mikrofon saat diminta.</p>
+        <div class="flex items-center gap-3 mb-3 flex-wrap">
+          <button id="btnRecStart" class="btn3d rounded-2xl px-4 py-2.5 font-extrabold text-white bg-gradient-to-br from-rose-400 to-red-600 border-b-4 border-red-800 shadow-lg flex items-center gap-2"><span id="recDot" class="hidden w-3 h-3 rounded-full bg-white rec-pulse"></span><span id="recBtnText">🎤 Mulai Rekam</span></button>
+          <button id="btnRecPlay" class="btn3d rounded-2xl px-4 py-2.5 font-extrabold text-white bg-gradient-to-br from-sky-400 to-indigo-600 border-b-4 border-indigo-800 shadow-lg opacity-40" disabled>▶️ Putar</button>
+          <button id="btnRecClear" class="btn3d rounded-2xl px-4 py-2.5 font-extrabold text-white bg-white/15 border-2 border-white/20 shadow-lg opacity-40" disabled>🗑️ Hapus</button>
+        </div>
+        <div id="recTimer" class="text-white/70 text-xs font-bold">⏱️ Siap merekam (maks 10 detik)</div>
+        <div id="recStatus" class="text-white/60 text-[10px] md:text-xs mt-1"></div>
+      </div>
+
+      <div class="rounded-2xl p-4 border-2 border-rose-500/40 bg-rose-950/40">
+        <h3 class="text-rose-200 font-extrabold text-base md:text-lg mb-1">⚠️ Zona Bahaya</h3>
+        <p class="text-rose-100/80 text-[10px] md:text-xs mb-3">Menghapus semua progres: bintang, koin, koleksi, pencapaian, cerita. Tidak bisa dibatalkan!</p>
+        <button id="btnResetProgress" class="btn3d rounded-2xl px-5 py-3 font-extrabold text-white bg-gradient-to-br from-rose-500 to-red-700 border-b-4 border-red-900 shadow-xl w-full md:w-auto">🗑️ Reset Semua Progres</button>
+      </div>
+
+      <div class="text-center text-white/40 text-[10px] md:text-xs py-2">Petualangan Baca 3D — dibuat dengan ❤️ untuk anak Indonesia</div>
+    </div>
+  </div>
+
+  <!-- KONFIRMASI -->
+  <div id="confirmDialog" class="absolute inset-0 z-[90] hidden flex-col items-center justify-center px-4 bg-slate-950/85 backdrop-blur-md">
+    <div class="glass rounded-[2rem] p-6 md:p-8 text-center max-w-md w-full animate-pop shadow-2xl">
+      <div class="text-6xl mb-3">⚠️</div>
+      <h3 id="confirmTitle" class="text-2xl font-extrabold text-white mb-2">Hapus Semua Progres?</h3>
+      <p id="confirmMsg" class="text-white/80 text-sm mb-5">Semua bintang, koin, koleksi, dan pencapaian akan hilang.</p>
+      <div class="flex gap-3 justify-center">
+        <button id="btnConfirmCancel" class="btn3d rounded-2xl px-6 py-3 font-extrabold text-white bg-white/15 border-2 border-white/20">Batal</button>
+        <button id="btnConfirmYes" class="btn3d rounded-2xl px-6 py-3 font-extrabold text-white bg-gradient-to-br from-rose-500 to-red-700 border-b-4 border-red-900 shadow-xl">Ya, Hapus!</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- STORY INTRO -->
+  <div id="storyIntroScreen" class="absolute inset-0 z-50 hidden flex-col items-center justify-center px-4 bg-slate-950/95 backdrop-blur-md overflow-y-auto py-6">
+    <div class="max-w-lg w-full">
+      <div id="storyIntroContent" class="glass rounded-[2rem] p-6 md:p-8 shadow-2xl text-center"></div>
+      <div class="flex gap-2 justify-center mt-4">
+        <button id="btnStorySkip" class="btn3d rounded-2xl px-5 py-2.5 font-extrabold text-white bg-white/15 border-2 border-white/20">Lewati</button>
+        <button id="btnStoryNext" class="btn3d rounded-2xl px-6 py-2.5 font-extrabold text-white bg-gradient-to-br from-emerald-400 to-emerald-600 border-b-4 border-emerald-800 shadow-xl">Lanjut →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- HADIAH -->
+  <div id="giftScreen" class="absolute inset-0 z-[60] hidden flex-col items-center justify-center px-4 bg-slate-950/90 backdrop-blur-md">
+    <div class="glass rounded-[2rem] p-6 md:p-10 shadow-2xl text-center max-w-md w-full animate-pop">
+      <div id="giftIcon" class="text-7xl md:text-8xl mb-4 gift-shake">🎁</div>
+      <h2 class="text-2xl md:text-3xl font-extrabold text-white mb-2">Hadiah Harian!</h2>
+      <p id="giftMsg" class="text-white/80 font-semibold mb-5 text-sm md:text-base">Kamu hebat sudah kembali hari ini!</p>
+      <button id="btnClaimGift" class="btn3d rounded-2xl px-8 py-3.5 font-extrabold text-white text-lg bg-gradient-to-br from-amber-400 to-orange-600 border-b-4 border-amber-800 shadow-xl">Buka Hadiah! 🎉</button>
+    </div>
+  </div>
+
+  <!-- PESTA -->
+  <div id="partyScreen" class="absolute inset-0 z-[70] hidden flex-col items-center justify-center px-4 bg-slate-950/80 backdrop-blur-md">
+    <div id="partyConfetti" class="absolute inset-0 overflow-hidden"></div>
+    <div class="relative glass rounded-[2rem] p-8 md:p-12 text-center max-w-md w-full animate-pop shadow-2xl">
+      <div class="text-7xl md:text-8xl mb-3 bounce-in">🎉</div>
+      <h2 class="text-3xl md:text-4xl font-extrabold shine mb-2">PESTA!</h2>
+      <p class="text-white font-bold text-lg md:text-xl mb-4">Kamu menyelesaikan <span id="partyCount" class="text-yellow-300">5</span> level!</p>
+      <p class="text-white/80 font-semibold mb-5 text-sm">Terus semangat belajar membaca ya!</p>
+      <button id="btnPartyClose" class="btn3d rounded-2xl px-7 py-3 font-extrabold text-white text-lg bg-gradient-to-br from-fuchsia-500 to-pink-600 border-b-4 border-fuchsia-800 shadow-xl">Hore! 🎊</button>
+    </div>
+  </div>
+
+  <!-- HASIL -->
+  <div id="resultScreen" class="absolute inset-0 z-50 hidden flex-col items-center justify-center px-4 bg-slate-950/85 backdrop-blur-md overflow-y-auto py-6">
+    <div class="glass rounded-[2rem] px-5 py-6 md:px-10 md:py-8 text-center max-w-lg w-full animate-pop shadow-2xl">
+      <div class="flex justify-center gap-2 md:gap-3 mb-3 text-4xl md:text-6xl tracking-widest">
+        <span id="resStar1" class="opacity-30">⭐</span><span id="resStar2" class="opacity-30">⭐</span><span id="resStar3" class="opacity-30">⭐</span>
+      </div>
+      <h2 id="resTitle" class="text-2xl md:text-4xl font-extrabold text-white mb-1">Hebat Sekali!</h2>
+      <p id="resSub" class="text-white/70 font-semibold mb-4 text-xs md:text-sm">Kamu sudah menyelesaikan petualangan ini.</p>
+      <div class="grid grid-cols-3 gap-2 md:gap-3 mb-4">
+        <div class="bg-emerald-500/20 rounded-2xl px-2 py-2.5 border border-emerald-400/30"><div class="text-emerald-200 text-[10px] md:text-xs font-bold uppercase">Benar</div><div id="resCorrect" class="text-white text-lg md:text-2xl font-extrabold">0</div></div>
+        <div class="bg-rose-500/20 rounded-2xl px-2 py-2.5 border border-rose-400/30"><div class="text-rose-200 text-[10px] md:text-xs font-bold uppercase">Salah</div><div id="resWrong" class="text-white text-lg md:text-2xl font-extrabold">0</div></div>
+        <div class="bg-amber-500/20 rounded-2xl px-2 py-2.5 border border-amber-400/30"><div class="text-amber-200 text-[10px] md:text-xs font-bold uppercase">Combo</div><div id="resCombo" class="text-white text-lg md:text-2xl font-extrabold">×0</div></div>
+      </div>
+      <div class="grid grid-cols-2 gap-2 mb-4">
+        <div class="bg-yellow-300/15 rounded-2xl px-3 py-2 border border-yellow-300/30"><div class="text-yellow-100 text-[10px] md:text-xs font-bold uppercase">Skor</div><div id="resScore" class="text-yellow-200 text-xl md:text-2xl font-extrabold">0</div></div>
+        <div class="bg-amber-400/15 rounded-2xl px-3 py-2 border border-amber-400/30 flex items-center justify-center gap-1.5"><span class="text-lg md:text-xl">🪙</span><div id="resCoins" class="text-amber-200 text-xl md:text-2xl font-extrabold">+0</div></div>
+      </div>
+      <div id="resCollectible" class="hidden mb-4">
+        <div class="bg-gradient-to-br from-fuchsia-500/30 to-pink-500/30 rounded-2xl p-3 border-2 border-fuchsia-400/50">
+          <div class="text-white/70 text-[10px] md:text-xs font-bold uppercase mb-1">Karakter Baru!</div>
+          <div class="flex items-center justify-center gap-2"><span id="resCollectibleEmoji" class="text-3xl md:text-4xl">🐱</span><span id="resCollectibleName" class="text-white font-extrabold text-sm md:text-lg">Kucing Oren</span></div>
+        </div>
+      </div>
+      <div id="resBadge" class="hidden mb-4"><div class="inline-block bg-gradient-to-r from-fuchsia-500 to-pink-500 rounded-full px-4 py-1.5 text-white text-xs md:text-sm font-extrabold shadow-lg">🏆 Sempurna! Tanpa salah!</div></div>
+      <div class="flex flex-col gap-2">
+        <button id="btnNextLevel" class="hidden btn3d rounded-2xl px-6 py-3 font-extrabold text-white text-base md:text-lg bg-gradient-to-br from-yellow-400 to-amber-600 border-b-4 border-amber-800 shadow-xl">⏭️ Lanjut ke Level Berikutnya</button>
+        <div class="flex flex-col sm:flex-row gap-2 justify-center">
+          <button id="btnPlayAgain" class="btn3d rounded-2xl px-5 py-3 font-extrabold text-white text-base md:text-lg bg-gradient-to-br from-emerald-400 to-emerald-600 border-b-4 border-emerald-800 shadow-xl">🔁 Ulang</button>
+          <button id="btnBackMenu" class="btn3d rounded-2xl px-5 py-3 font-extrabold text-white text-base md:text-lg bg-gradient-to-br from-indigo-400 to-indigo-600 border-b-4 border-indigo-800 shadow-xl">🏠 Menu</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="achNotif" class="absolute top-4 left-1/2 -translate-x-1/2 z-[80] hidden pointer-events-none"></div>
+</div>
+
+<script>
+/* =========================================================
+   PETUALANGAN BACA 3D — ULTIMATE (gabungan lengkap)
+   ========================================================= */
+
+/* ---------------- DATA ---------------- */
+const LETTERS=[
+  {l:'A',w:'APEL',e:'🍎'},{l:'B',w:'BOLA',e:'⚽'},{l:'C',w:'CICAK',e:'🦎'},{l:'D',w:'DOMBA',e:'🐑'},
+  {l:'E',w:'EMBER',e:'🪣'},{l:'F',w:'FOTO',e:'📷'},{l:'G',w:'GAJAH',e:'🐘'},{l:'H',w:'HARIMAU',e:'🐯'},
+  {l:'I',w:'IKAN',e:'🐟'},{l:'J',w:'JERUK',e:'🍊'},{l:'K',w:'KUCING',e:'🐱'},{l:'L',w:'LAMPU',e:'💡'},
+  {l:'M',w:'MATA',e:'👀'},{l:'N',w:'NANAS',e:'🍍'},{l:'O',w:'OBAT',e:'💊'},{l:'P',w:'PISANG',e:'🍌'},
+  {l:'Q',w:'QURAN',e:'📖'},{l:'R',w:'ROTI',e:'🍞'},{l:'S',w:'SEPATU',e:'👟'},{l:'T',w:'TOPI',e:'🎩'},
+  {l:'U',w:'ULAR',e:'🐍'},{l:'V',w:'VAS',e:'🏺'},{l:'W',w:'WORTEL',e:'🥕'},{l:'X',w:'XILOFON',e:'🎹'},
+  {l:'Y',w:'YOYO',e:'🪀'},{l:'Z',w:'ZEBRA',e:'🦓'}
+];
+const SYLLABLES=[
+  {w:'BOLA',s:['BO','LA'],e:'⚽'},{w:'SAPI',s:['SA','PI'],e:'🐄'},{w:'KAKI',s:['KA','KI'],e:'🦶'},
+  {w:'ROTI',s:['RO','TI'],e:'🍞'},{w:'MEJA',s:['ME','JA'],e:'🪑'},{w:'BAJU',s:['BA','JU'],e:'👕'},
+  {w:'GIGI',s:['GI','GI'],e:'🦷'},{w:'SAPU',s:['SA','PU'],e:'🧹'},{w:'BUKU',s:['BU','KU'],e:'📚'},
+  {w:'TOPI',s:['TO','PI'],e:'🎩'},{w:'PALU',s:['PA','LU'],e:'🔨'},{w:'DADU',s:['DA','DU'],e:'🎲'},
+  {w:'KADO',s:['KA','DO'],e:'🎁'},{w:'PENA',s:['PE','NA'],e:'🖊️'},{w:'MOBIL',s:['MO','BIL'],e:'🚗'},
+  {w:'PISANG',s:['PI','SANG'],e:'🍌'},{w:'SEPATU',s:['SE','PA','TU'],e:'👟'},{w:'KUCING',s:['KU','CING'],e:'🐱'},
+  {w:'JERUK',s:['JE','RUK'],e:'🍊'},{w:'NANAS',s:['NA','NAS'],e:'🍍'}
+];
+const SYLL_POOL=['BA','BI','BU','BE','BO','MA','MI','MU','ME','MO','PA','PI','PU','PE','PO',
+  'KA','KI','KU','KE','KO','SA','SI','SU','SE','SO','LA','LI','LU','LE','LO','TA','TI','TU','TE','TO',
+  'NA','NI','NU','NE','NO','RA','RI','RU','RE','RO','JA','JI','JU','JE','JO','GA','GI','GU','GE','GO',
+  'DA','DI','DU','DE','DO','CA','CI','CU','CE','CO','HA','HI','HU','HE','HO'];
+const WORDS=[
+  {w:'BOLA',e:'⚽'},{w:'KUCING',e:'🐱'},{w:'GAJAH',e:'🐘'},{w:'IKAN',e:'🐟'},
+  {w:'JERUK',e:'🍊'},{w:'MATA',e:'👀'},{w:'NANAS',e:'🍍'},{w:'PISANG',e:'🍌'},
+  {w:'ROTI',e:'🍞'},{w:'SEPATU',e:'👟'},{w:'TOPI',e:'🎩'},{w:'ULAR',e:'🐍'},
+  {w:'WORTEL',e:'🥕'},{w:'ZEBRA',e:'🦓'},{w:'APEL',e:'🍎'},{w:'DOMBA',e:'🐑'},
+  {w:'EMBER',e:'🪣'},{w:'LAMPU',e:'💡'},{w:'MEJA',e:'🪑'},{w:'BAJU',e:'👕'},
+  {w:'SAPI',e:'🐄'},{w:'KAKI',e:'🦶'},{w:'BUKU',e:'📚'},{w:'SENDOK',e:'🥄'},
+  {w:'GELAS',e:'🥛'},{w:'KURSI',e:'🪑'},{w:'PINTU',e:'🚪'},{w:'BUNGA',e:'🌸'},
+  {w:'BURUNG',e:'🐦'},{w:'KUDA',e:'🐴'}
+];
+const SENTENCES=[
+  {s:'Adik ___ nasi.',a:'makan',o:['makan','tidur','mandi'],e:'🍚'},
+  {s:'Ibu ___ di dapur.',a:'masak',o:['masak','tidur','lari'],e:'🍳'},
+  {s:'Ayah ___ koran.',a:'baca',o:['baca','makan','lari'],e:'📰'},
+  {s:'Kucing ___ ikan.',a:'makan',o:['makan','baca','tulis'],e:'🐱'},
+  {s:'Aku ___ ke sekolah.',a:'pergi',o:['pergi','tidur','makan'],e:'🏫'},
+  {s:'Burung ___ di langit.',a:'terbang',o:['terbang','berenang','makan'],e:'🐦'},
+  {s:'Ikan ___ di dalam air.',a:'berenang',o:['berenang','terbang','lari'],e:'🐟'},
+  {s:'Adik ___ bola di lapangan.',a:'menendang',o:['menendang','membaca','tidur'],e:'⚽'},
+  {s:'Siti ___ bunga di taman.',a:'menyiram',o:['menyiram','makan','terbang'],e:'🌸'},
+  {s:'Budi ___ sepeda.',a:'naik',o:['naik','makan','tidur'],e:'🚲'}
+];
+const COLLECTIBLES=[
+  {id:'cat',name:'Kucing Oren',emoji:'🐱',rarity:'common'},
+  {id:'dog',name:'Anjing Ceria',emoji:'🐶',rarity:'common'},
+  {id:'rabbit',name:'Kelinci Putih',emoji:'🐰',rarity:'common'},
+  {id:'fox',name:'Rubah Pintar',emoji:'🦊',rarity:'rare'},
+  {id:'panda',name:'Panda Lucu',emoji:'🐼',rarity:'rare'},
+  {id:'lion',name:'Singa Berani',emoji:'🦁',rarity:'rare'},
+  {id:'owl',name:'Burung Hantu Bijak',emoji:'🦉',rarity:'rare'},
+  {id:'dragon',name:'Naga Emas',emoji:'🐲',rarity:'epic'},
+  {id:'unicorn',name:'Unicorn Ajaib',emoji:'🦄',rarity:'epic'},
+  {id:'crown',name:'Mahkota Legenda',emoji:'👑',rarity:'legendary'}
+];
+const RARITY_WEIGHT={common:60,rare:25,epic:12,legendary:3};
+const RARITY_LABEL={common:'Umum',rare:'Langka',epic:'Epik',legendary:'Legendaris'};
+const RARITY_BG={
+  common:'from-slate-400/30 to-slate-500/30 border-slate-300/40',
+  rare:'from-sky-400/30 to-blue-500/30 border-sky-300/50',
+  epic:'from-fuchsia-400/30 to-purple-500/30 border-fuchsia-300/50',
+  legendary:'from-amber-400/30 to-yellow-500/30 border-amber-300/60'
+};
+const HATS=[
+  {id:'none',name:'Tanpa Topi',emoji:'🚫',price:0},
+  {id:'cap',name:'Topi Merah',emoji:'🧢',price:20},
+  {id:'party',name:'Topi Pesta',emoji:'🎉',price:50},
+  {id:'wizard',name:'Topi Pesulap',emoji:'🎩',price:80},
+  {id:'grad',name:'Topi Wisuda',emoji:'🎓',price:120},
+  {id:'crown',name:'Mahkota Emas',emoji:'👑',price:200}
+];
+const COLORS=[
+  {id:'gold',name:'Emas',hex:'#fbbf24',price:0},
+  {id:'sky',name:'Biru Langit',hex:'#60a5fa',price:30},
+  {id:'pink',name:'Pink Manis',hex:'#f472b6',price:30},
+  {id:'mint',name:'Mint Segar',hex:'#34d399',price:30},
+  {id:'purple',name:'Ungu Misteri',hex:'#a855f7',price:50},
+  {id:'rose',name:'Rose Cantik',hex:'#fb7185',price:50},
+  {id:'black',name:'Hitam Elegan',hex:'#1f2937',price:100}
+];
+const ACHIEVEMENTS=[
+  {id:'first_step',name:'Langkah Pertama',desc:'Selesaikan 1 level',emoji:'👣',check:s=>s.totalLevelsCompleted>=1},
+  {id:'perfect_1',name:'Sempurna!',desc:'Dapat 3 bintang di 1 level',emoji:'⭐',check:s=>s.totalPerfectLevels>=1},
+  {id:'perfect_5',name:'Bintang Lima',desc:'Sempurna di 5 level',emoji:'🌟',check:s=>s.totalPerfectLevels>=5},
+  {id:'perfect_10',name:'Kolektor Bintang',desc:'Sempurna di 10 level',emoji:'💫',check:s=>s.totalPerfectLevels>=10},
+  {id:'streak_3',name:'Rajin',desc:'Streak 3 hari',emoji:'🔥',check:s=>s.streak>=3},
+  {id:'streak_7',name:'Seminggu Penuh',desc:'Streak 7 hari',emoji:'🗓️',check:s=>s.streak>=7},
+  {id:'combo_5',name:'Combo Master',desc:'Combo ×5',emoji:'⚡',check:s=>s.maxCombo>=5},
+  {id:'combo_10',name:'Combo Legendaris',desc:'Combo ×10',emoji:'🌠',check:s=>s.maxCombo>=10},
+  {id:'coin_100',name:'Kaya Raya',desc:'Punya 100 koin',emoji:'💰',check:s=>s.coins>=100},
+  {id:'coin_500',name:'Sultan Baca',desc:'Punya 500 koin',emoji:'💎',check:s=>s.coins>=500},
+  {id:'collector_5',name:'Kolektor',desc:'Kumpulkan 5 karakter',emoji:'📚',check:s=>Object.keys(s.collection).length>=5},
+  {id:'collector_all',name:'Master Kolektor',desc:'Kumpulkan semua karakter',emoji:'🏆',check:s=>Object.keys(s.collection).length>=COLLECTIBLES.length}
+];
+const WORLDS=[
+  {id:'forest',name:'Hutan Huruf',icon:'🌳',color:'from-emerald-500 to-emerald-800',nodeColor:'#10b981',mode:'letter',
+   levels:[
+     {id:'f1',name:'Langkah Pertama',diff:'easy',qs:5,boss:false},
+     {id:'f2',name:'Daun Berguguran',diff:'easy',qs:6,boss:false},
+     {id:'f3',name:'Pohon Berbisik',diff:'medium',qs:7,boss:true}
+   ]},
+  {id:'beach',name:'Pantai Suku Kata',icon:'🏖️',color:'from-sky-500 to-blue-800',nodeColor:'#0ea5e9',mode:'syllable',unlockStars:3,
+   levels:[
+     {id:'b1',name:'Ombak Kecil',diff:'easy',qs:5,boss:false},
+     {id:'b2',name:'Pasir Hangat',diff:'medium',qs:7,boss:false},
+     {id:'b3',name:'Badai Ombak',diff:'hard',qs:8,boss:true}
+   ]},
+  {id:'mountain',name:'Gunung Kata',icon:'🏔️',color:'from-fuchsia-500 to-purple-800',nodeColor:'#d946ef',mode:'word',unlockStars:9,
+   levels:[
+     {id:'m1',name:'Bukit Hijau',diff:'easy',qs:6,boss:false},
+     {id:'m2',name:'Tebing Curam',diff:'medium',qs:7,boss:false},
+     {id:'m3',name:'Puncak Bersalju',diff:'hard',qs:9,boss:true}
+   ]},
+  {id:'space',name:'Angkasa Kalimat',icon:'🚀',color:'from-amber-500 to-orange-800',nodeColor:'#f59e0b',mode:'sentence',unlockStars:18,
+   levels:[
+     {id:'s1',name:'Bintang Jatuh',diff:'easy',qs:6,boss:false},
+     {id:'s2',name:'Orbit Bumi',diff:'medium',qs:8,boss:false},
+     {id:'s3',name:'Galaksi Jauh',diff:'medium',qs:9,boss:false},
+     {id:'s4',name:'Lubang Hitam',diff:'hard',qs:10,boss:true}
+   ]}
+];
+const STORIES={
+  forest:{title:'Hutan Huruf',pages:[
+    {e:'🐱',t:'Hai! Aku Kucing Pintar. Aku tersesat di Hutan Huruf!'},
+    {e:'🌳',t:'Pohon-pohon di sini bicara dengan huruf. Aku harus bisa membacanya.'},
+    {e:'❓',t:'Bisakah kamu membantuku membaca huruf-huruf ajaib ini?'}
+  ]},
+  beach:{title:'Pantai Suku Kata',pages:[
+    {e:'🐱',t:'Kami sampai di Pantai Suku Kata! Pasirnya halus sekali.'},
+    {e:'🐚',t:'Kerang-kerang di sini menyimpan suku kata yang hilang.'},
+    {e:'🧩',t:'Bantu aku menyusun suku kata agar pintu harta karun terbuka!'}
+  ]},
+  mountain:{title:'Gunung Kata',pages:[
+    {e:'🐱',t:'Wah, dingin sekali di Gunung Kata! Aku pakai syal nih.'},
+    {e:'⛰️',t:'Setiap batu punya kata-kata yang harus dibaca dengan benar.'},
+    {e:'🎯',t:'Ayo kumpulkan kata-kata ajaib untuk sampai ke puncak!'}
+  ]},
+  space:{title:'Angkasa Kalimat',pages:[
+    {e:'🐱',t:'Ini petualangan terakhir! Kita pergi ke Angkasa Kalimat!'},
+    {e:'🌌',t:'Bintang-bintang di sini bicara dengan kalimat panjang.'},
+    {e:'🏆',t:'Kalau kita berhasil, aku akan jadi Kucing Pintar Legendaris!'}
+  ]}
+};
+const STORY_PAGES=[
+  {id:'pg1',title:'Kucing yang Suka Membaca',e:'🐱',text:'Di sebuah desa, ada kucing kecil yang selalu membawa buku. Namanya Kucing Pintar. Setiap malam ia membaca di bawah sinar bulan.'},
+  {id:'pg2',title:'Petualangan Dimulai',e:'🗺️',text:'Suatu hari, sebuah peta ajaib muncul di depan pintunya. Peta itu menunjukkan jalan ke Hutan Huruf!'},
+  {id:'pg3',title:'Sahabat Baru',e:'🦊',text:'Di Hutan Huruf, Kucing Pintar bertemu Rubah Pintar. Rubah mengajarinya membaca huruf-huruf besar di pohon.'},
+  {id:'pg4',title:'Lautan Suku Kata',e:'🌊',text:'Di pantai, mereka menemukan kerang emas. Setiap kerang berisi suku kata. "BO-LA!" seru Kucing Pintar.'},
+  {id:'pg5',title:'Pendakian Berat',e:'⛰️',text:'Gunung itu tinggi sekali. Tapi Kucing Pintar tidak menyerah. Ia membaca setiap kata yang ada di batu.'},
+  {id:'pg6',title:'Bintang Terakhir',e:'🌠',text:'Di angkasa, Kucing Pintar melihat bintang paling terang. Bintang itu berkata: "Kamu sudah bisa membaca, Kucing Pintar!"'},
+  {id:'pg7',title:'Kembali ke Rumah',e:'🏠',text:'Dengan ilmu membaca, Kucing Pintar kembali ke rumah. Sekarang ia bisa membaca semua buku di desa!'},
+  {id:'pg8',title:'Pahlawan Membaca',e:'👑',text:'Kucing Pintar dinobatkan sebagai Pahlawan Membaca. Ia mengajar anak-anak desa membaca. Tamat.'}
+];
+const DIFFICULTY={
+  easy:{name:'Mudah',options:3,timePerQ:0,hints:3,lives:0,base:10,coinBase:4},
+  medium:{name:'Sedang',options:3,timePerQ:20,hints:1,lives:3,base:15,coinBase:6},
+  hard:{name:'Sulit',options:4,timePerQ:12,hints:0,lives:3,base:20,coinBase:8}
+};
+
+/* ---------------- UTIL ---------------- */
+const $=(id)=>document.getElementById(id);
+const shuffle=(a)=>{const r=a.slice();for(let i=r.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[r[i],r[j]]=[r[j],r[i]];}return r;};
+const pickN=(a,n)=>shuffle(a).slice(0,n);
+const todayStr=()=>new Date().toISOString().slice(0,10);
+const daysBetween=(a,b)=>Math.round((new Date(b+'T00:00:00')-new Date(a+'T00:00:00'))/86400000);
+function roundRect(ctx,x,y,w,h,r){ctx.beginPath();ctx.moveTo(x+r,y);ctx.arcTo(x+w,y,x+w,y+h,r);ctx.arcTo(x+w,y+h,x,y+h,r);ctx.arcTo(x,y+h,x,y,r);ctx.arcTo(x,y,x+w,y,r);ctx.closePath();}
+
+/* ---------------- SAVE ---------------- */
+const SAVE_KEY='bacaAdventure_ultimate_v1';
+let save={
+  levels:{},coins:0,streak:0,lastPlayed:null,lastGift:null,
+  collection:{},ownedHats:['none'],ownedColors:['gold'],equipped:{hat:'none',color:'gold'},
+  achievements:{},storyPagesUnlocked:{},
+  learned:{letters:{},syllables:{},words:{},sentences:{}},
+  totalCorrect:0,totalLevelsCompleted:0,totalPerfectLevels:0,totalGamesPlayed:0,maxCombo:0,
+  history:{},
+  settings:{sfxOn:true,bgmOn:false,bgmVol:50}
+};
+function loadSave(){
+  try{
+    const raw=localStorage.getItem(SAVE_KEY);
+    if(raw){
+      const loaded=JSON.parse(raw);
+      save={...save,...loaded};
+      save.equipped=save.equipped||{hat:'none',color:'gold'};
+      save.ownedHats=save.ownedHats||['none'];
+      save.ownedColors=save.ownedColors||['gold'];
+      save.collection=save.collection||{};
+      save.achievements=save.achievements||{};
+      save.storyPagesUnlocked=save.storyPagesUnlocked||{};
+      save.history=save.history||{};
+      save.learned={letters:{},syllables:{},words:{},sentences:{},...(save.learned||{})};
+      save.settings={sfxOn:true,bgmOn:false,bgmVol:50,...(save.settings||{})};
+    }
+  }catch(e){console.warn(e);}
+}
+function saveGame(){try{localStorage.setItem(SAVE_KEY,JSON.stringify(save));}catch(e){}}
+function getTotalStars(){return Object.values(save.levels).reduce((s,l)=>s+(l.stars||0),0);}
+function getStars(id){return (save.levels[id]&&save.levels[id].stars)||0;}
+function isWorldUnlocked(w){if(!w.unlockStars)return true;return getTotalStars()>=w.unlockStars;}
+function isLevelUnlocked(w,idx){if(!isWorldUnlocked(w))return false;if(idx===0)return true;return getStars(w.levels[idx-1].id)>0;}
+loadSave();
+
+/* ---------------- SFX ---------------- */
+let soundOn=save.settings.sfxOn;
+let audioCtx=null;
+function ensureAudio(){
+  if(!audioCtx){try{audioCtx=new (window.AudioContext||window.webkitAudioContext)();}catch(e){}}
+  if(audioCtx&&audioCtx.state==='suspended')audioCtx.resume();
+  return audioCtx;
+}
+function tone(freq,dur,type='sine',vol=0.16,delay=0){
+  if(!soundOn)return;ensureAudio();if(!audioCtx)return;
+  const t0=audioCtx.currentTime+delay;
+  const o=audioCtx.createOscillator(),g=audioCtx.createGain();
+  o.type=type;o.frequency.setValueAtTime(freq,t0);
+  g.gain.setValueAtTime(0.0001,t0);
+  g.gain.exponentialRampToValueAtTime(vol,t0+0.02);
+  g.gain.exponentialRampToValueAtTime(0.0001,t0+dur);
+  o.connect(g);g.connect(audioCtx.destination);
+  o.start(t0);o.stop(t0+dur+0.05);
+}
+function sfxCorrect(){[523.25,659.25,783.99,1046.5].forEach((f,i)=>tone(f,0.22,'triangle',0.14,i*0.075));}
+function sfxWrong(){tone(196,0.16,'sawtooth',0.09);tone(146,0.24,'sawtooth',0.09,0.13);}
+function sfxTap(){tone(880,0.06,'sine',0.07);}
+function sfxWin(){[523,587,659,784,880,1047].forEach((f,i)=>tone(f,0.3,'triangle',0.13,i*0.11));}
+function sfxCombo(){[659,880,1175].forEach((f,i)=>tone(f,0.16,'square',0.09,i*0.06));}
+function sfxHint(){tone(660,0.1,'sine',0.09);tone(990,0.15,'sine',0.09,0.08);}
+function sfxGameOver(){tone(392,0.3,'sawtooth',0.1);tone(261,0.4,'sawtooth',0.1,0.2);}
+function sfxCoin(){tone(1200,0.08,'square',0.1);tone(1600,0.1,'square',0.1,0.06);}
+function sfxUnlock(){[523,659,784,1047,1319].forEach((f,i)=>tone(f,0.25,'triangle',0.13,i*0.1));}
+function sfxGift(){[784,988,1175,1568].forEach((f,i)=>tone(f,0.2,'triangle',0.13,i*0.1));}
+function sfxParty(){[523,587,659,784,880,988,1047,1319].forEach((f,i)=>tone(f,0.2,'triangle',0.14,i*0.08));}
+
+/* ---------------- BGM MULTI-TRACK ---------------- */
+const BGM={
+  enabled:false,gainNode:null,timer:null,currentTrack:'menu',step:0,
+  noteFreq:{
+    C3:130.81,D3:146.83,E3:164.81,F3:174.61,G3:196.00,A3:220.00,B3:246.94,
+    C4:261.63,D4:293.66,E4:329.63,F4:349.23,G4:392.00,A4:440.00,B4:493.88,
+    C5:523.25,D5:587.33,E5:659.25,F5:698.46,G5:783.99,A5:880.00,B5:987.77
+  },
+  tracks:{
+    menu:{
+      tempo:100,
+      melody:['E5','G5','C5','G5','D5','F5','A4','F5','E5','G5','C5','G5','B4','D5','G4','D5',
+              'C5','E5','G5','E5','D5','F5','A5','F5','E5','C5','G4','E5','D5','B4','C5',0],
+      bass:['C3',0,'G3',0,'A3',0,'E3',0,'F3',0,'C3',0,'G3',0,'G3',0,
+            'C3',0,'G3',0,'A3',0,'F3',0,'F3',0,'G3',0,'G3',0,'G3',0]
+    },
+    forest:{
+      tempo:115,
+      melody:['C5','E5','G5','E5','G5','A5','G5','E5','D5','F5','A5','F5','E5','G5','C5',0,
+              'C5','E5','G5','E5','A5','G5','F5','E5','D5','E5','F5','D5','C5',0,0,0],
+      bass:['C3',0,'C3',0,'F3',0,'F3',0,'G3',0,'G3',0,'C3',0,'C3',0,
+            'C3',0,'F3',0,'F3',0,'G3',0,'G3',0,'G3',0,'C3',0,'C3',0]
+    },
+    beach:{
+      tempo:80,
+      melody:['E5',0,'G5',0,'A5','G5','E5',0,'D5',0,'E5',0,'G5',0,'E5',0,
+              'A5',0,'G5',0,'E5',0,'D5',0,'C5',0,'D5',0,'E5',0,0,0],
+      bass:['C3',0,0,0,'A3',0,0,0,'F3',0,0,0,'G3',0,0,0,
+            'C3',0,0,0,'A3',0,0,0,'F3',0,0,0,'G3',0,0,0]
+    },
+    mountain:{
+      tempo:95,
+      melody:['A4','C5','E5','A5','G5','E5','C5','A4','B4','D5','F5','B5','A5','F5','D5','B4',
+              'A4','C5','E5','A5','C5','E5','A5','B5','A5','G5','F5','E5','D5','C5','B4','A4'],
+      bass:['A3',0,'A3',0,'E3',0,'E3',0,'F3',0,'F3',0,'C3',0,'C3',0,
+            'A3',0,'A3',0,'E3',0,'E3',0,'F3',0,'F3',0,'E3',0,'A3',0]
+    },
+    space:{
+      tempo:70,
+      melody:['A4',0,'E5',0,'G5',0,'E5',0,'C5',0,'G4',0,'E5',0,'G5',0,
+              'F5',0,'C5',0,'A4',0,'E4',0,'A4',0,'C5',0,'E5',0,0,0],
+      bass:['A3',0,0,0,0,0,0,0,'E3',0,0,0,0,0,0,0,
+            'F3',0,0,0,0,0,0,0,'A3',0,0,0,0,0,0,0]
+    }
+  },
+  init(){
+    if(this.gainNode)return;
+    const ctx=ensureAudio();if(!ctx)return;
+    this.gainNode=ctx.createGain();
+    this.gainNode.gain.value=(save.settings.bgmVol||50)/100*0.15;
+    this.gainNode.connect(ctx.destination);
+  },
+  playNote(freq,time,dur,type='triangle',vol=0.18){
+    const ctx=audioCtx;if(!ctx||!this.gainNode)return;
+    const o=ctx.createOscillator(),g=ctx.createGain();
+    o.type=type;o.frequency.setValueAtTime(freq,time);
+    g.gain.setValueAtTime(0.0001,time);
+    g.gain.exponentialRampToValueAtTime(vol,time+0.02);
+    g.gain.exponentialRampToValueAtTime(0.0001,time+dur);
+    o.connect(g);g.connect(this.gainNode);
+    o.start(time);o.stop(time+dur+0.05);
+  },
+  start(trackName){
+    if(this.timer)return;
+    const ctx=ensureAudio();if(!ctx)return;
+    if(trackName)this.currentTrack=trackName;
+    if(!this.tracks[this.currentTrack])this.currentTrack='menu';
+    this.init();
+    this.enabled=true;
+    this.step=0;
+    const track=this.tracks[this.currentTrack];
+    const stepDur=60/track.tempo/2;
+    const tick=()=>{
+      if(!this.enabled)return;
+      const now=ctx.currentTime+0.05;
+      const i=this.step%32;
+      const mNote=track.melody[i];
+      if(mNote){const f=this.noteFreq[mNote];if(f)this.playNote(f,now,stepDur*1.6,'triangle',0.14);}
+      if(i%2===0){
+        const bNote=track.bass[i];
+        if(bNote){const f=this.noteFreq[bNote];if(f)this.playNote(f,now,stepDur*1.8,'sine',0.22);}
+      }
+      if(i%4===0){this.playNote(3000+Math.random()*1000,now,0.04,'square',0.03);}
+      this.step++;
+      this.timer=setTimeout(tick,stepDur*1000);
+    };
+    tick();
+  },
+  stop(){
+    this.enabled=false;
+    if(this.timer){clearTimeout(this.timer);this.timer=null;}
+  },
+  switchTo(trackName){
+    if(!this.tracks[trackName])return;
+    if(this.currentTrack===trackName&&this.enabled)return;
+    this.currentTrack=trackName;
+    if(!this.enabled)return;
+    this.stop();
+    this.start(trackName);
+  },
+  setVolume(v){
+    if(this.gainNode)this.gainNode.gain.value=(v/100)*0.15;
+  }
+};
+
+/* ---------------- SPEECH ---------------- */
+let idVoice=null;
+function loadVoices(){if(!('speechSynthesis' in window))return;const vs=speechSynthesis.getVoices();idVoice=vs.find(v=>v.lang&&v.lang.toLowerCase().replace('_','-').startsWith('id'))||null;}
+if('speechSynthesis' in window){loadVoices();speechSynthesis.onvoiceschanged=loadVoices;}
+function speak(text,rate=0.88,pitch=1.15){
+  if(!soundOn||!('speechSynthesis' in window))return;
+  try{
+    speechSynthesis.cancel();
+    const u=new SpeechSynthesisUtterance(text);
+    u.lang='id-ID';u.rate=rate;u.pitch=pitch;u.volume=1;
+    if(idVoice)u.voice=idVoice;
+    speechSynthesis.speak(u);
+  }catch(e){}
+}
+
+/* =========================================================
+   BABYLON
+   ========================================================= */
+const canvas=$('renderCanvas');
+const engine=new BABYLON.Engine(canvas,true,{preserveDrawingBuffer:true,stencil:true},true);
+const scene=new BABYLON.Scene(engine);
+scene.clearColor=new BABYLON.Color4(0.04,0.06,0.14,1);
+scene.fogMode=BABYLON.Scene.FOGMODE_EXP2;
+scene.fogDensity=0.012;
+scene.fogColor=new BABYLON.Color3(0.05,0.07,0.18);
+
+const camera=new BABYLON.ArcRotateCamera('cam',Math.PI/2,Math.PI/2.35,16,new BABYLON.Vector3(0,-0.4,0),scene);
+camera.fov=0.85;camera.minZ=0.1;
+
+const hemi=new BABYLON.HemisphericLight('hemi',new BABYLON.Vector3(0,1,0),scene);
+hemi.intensity=0.9;hemi.groundColor=new BABYLON.Color3(0.25,0.3,0.55);
+const dirLight=new BABYLON.DirectionalLight('dir',new BABYLON.Vector3(-0.6,-1.1,0.7),scene);
+dirLight.position=new BABYLON.Vector3(14,26,-16);dirLight.intensity=0.75;
+const shadowGen=new BABYLON.ShadowGenerator(1024,dirLight);
+shadowGen.useBlurExponentialShadowMap=true;shadowGen.blurKernel=24;shadowGen.darkness=0.55;
+
+(function buildSky(){
+  const sky=BABYLON.MeshBuilder.CreateSphere('sky',{diameter:220,sideOrientation:BABYLON.Mesh.BACKSIDE},scene);
+  const tex=new BABYLON.DynamicTexture('skyTex',{width:64,height:512},scene,false);
+  const c=tex.getContext();
+  const g=c.createLinearGradient(0,0,0,512);
+  g.addColorStop(0,'#2a1b5e');g.addColorStop(0.35,'#1e3a8a');
+  g.addColorStop(0.65,'#0f2a4a');g.addColorStop(1,'#070b18');
+  c.fillStyle=g;c.fillRect(0,0,64,512);tex.update();
+  const m=new BABYLON.StandardMaterial('skyMat',scene);
+  m.emissiveTexture=tex;m.diffuseColor=new BABYLON.Color3(0,0,0);
+  m.specularColor=new BABYLON.Color3(0,0,0);m.backFaceCulling=false;m.disableLighting=true;
+  sky.material=m;sky.applyFog=false;
+})();
+
+(function buildGround(){
+  const gnd=BABYLON.MeshBuilder.CreateDisc('ground',{radius:26,tessellation:64},scene);
+  gnd.rotation.x=Math.PI/2;gnd.position.y=-3.6;gnd.receiveShadows=true;
+  const tex=new BABYLON.DynamicTexture('gndTex',{width:512,height:512},scene,true);
+  const c=tex.getContext();
+  const g=c.createRadialGradient(256,256,20,256,256,256);
+  g.addColorStop(0,'#3b2f7a');g.addColorStop(0.5,'#1e2456');g.addColorStop(1,'#0a0e22');
+  c.fillStyle=g;c.fillRect(0,0,512,512);
+  c.strokeStyle='rgba(120,180,255,0.15)';c.lineWidth=2;
+  for(let i=0;i<=512;i+=64){c.beginPath();c.moveTo(i,0);c.lineTo(i,512);c.stroke();c.beginPath();c.moveTo(0,i);c.lineTo(512,i);c.stroke();}
+  tex.update();
+  const m=new BABYLON.StandardMaterial('gndMat',scene);
+  m.diffuseTexture=tex;m.specularColor=new BABYLON.Color3(0.05,0.05,0.1);
+  m.emissiveColor=new BABYLON.Color3(0.18,0.16,0.32);
+  gnd.material=m;
+})();
+
+const dotTex=(function(){
+  const dt=new BABYLON.DynamicTexture('dot',{width:64,height:64},scene,true);
+  const c=dt.getContext();
+  const g=c.createRadialGradient(32,32,0,32,32,32);
+  g.addColorStop(0,'rgba(255,255,255,1)');g.addColorStop(0.4,'rgba(255,255,255,0.7)');g.addColorStop(1,'rgba(255,255,255,0)');
+  c.fillStyle=g;c.fillRect(0,0,64,64);
+  dt.update();dt.hasAlpha=true;return dt;
+})();
+
+(function ambientDust(){
+  const ps=new BABYLON.ParticleSystem('dust',260,scene);
+  ps.particleTexture=dotTex;
+  ps.emitter=new BABYLON.Vector3(0,0,0);
+  ps.minEmitBox=new BABYLON.Vector3(-24,-8,-14);
+  ps.maxEmitBox=new BABYLON.Vector3(24,12,10);
+  ps.color1=new BABYLON.Color4(0.55,0.75,1,0.55);
+  ps.color2=new BABYLON.Color4(1,0.85,0.6,0.55);
+  ps.colorDead=new BABYLON.Color4(0,0,0,0);
+  ps.minSize=0.06;ps.maxSize=0.22;ps.minLifeTime=4;ps.maxLifeTime=10;ps.emitRate=34;
+  ps.blendMode=BABYLON.ParticleSystem.BLENDMODE_ADD;
+  ps.gravity=new BABYLON.Vector3(0,0.25,0);
+  ps.direction1=new BABYLON.Vector3(-0.2,0.4,-0.2);
+  ps.direction2=new BABYLON.Vector3(0.2,1,0.2);
+  ps.minEmitPower=0.1;ps.maxEmitPower=0.5;ps.updateSpeed=0.012;ps.start();
+})();
+
+const confetti=(function(){
+  const ps=new BABYLON.ParticleSystem('confetti',400,scene);
+  ps.particleTexture=dotTex;
+  ps.emitter=new BABYLON.Vector3(0,0,0);
+  ps.minEmitBox=new BABYLON.Vector3(-1.2,-1.2,-0.4);
+  ps.maxEmitBox=new BABYLON.Vector3(1.2,1.2,0.4);
+  ps.color1=new BABYLON.Color4(1,0.85,0.3,1);
+  ps.color2=new BABYLON.Color4(0.4,1,0.7,1);
+  ps.colorDead=new BABYLON.Color4(0,0,0,0);
+  ps.minSize=0.18;ps.maxSize=0.42;ps.minLifeTime=0.7;ps.maxLifeTime=1.5;ps.emitRate=0;
+  ps.blendMode=BABYLON.ParticleSystem.BLENDMODE_ADD;
+  ps.gravity=new BABYLON.Vector3(0,-7,0);
+  ps.direction1=new BABYLON.Vector3(-5,5,-3);
+  ps.direction2=new BABYLON.Vector3(5,11,3);
+  ps.minEmitPower=3;ps.maxEmitPower=8;ps.updateSpeed=0.016;ps.manualEmitCount=0;ps.start();
+  return ps;
+})();
+
+const mascot=(function(){
+  const root=new BABYLON.TransformNode('mascotRoot',scene);
+  root.position=new BABYLON.Vector3(-8.6,-3.2,2.4);
+  root.scaling=new BABYLON.Vector3(0.78,0.78,0.78);
+  const furMat=new BABYLON.StandardMaterial('fur',scene);
+  furMat.diffuseColor=BABYLON.Color3.FromHexString('#fbbf24');
+  furMat.specularColor=new BABYLON.Color3(0.15,0.15,0.15);
+  furMat.emissiveColor=new BABYLON.Color3(0.16,0.11,0.02);
+  const bellyMat=new BABYLON.StandardMaterial('belly',scene);
+  bellyMat.diffuseColor=BABYLON.Color3.FromHexString('#fef3c7');
+  bellyMat.emissiveColor=new BABYLON.Color3(0.18,0.16,0.09);
+  const darkMat=new BABYLON.StandardMaterial('dark',scene);
+  darkMat.diffuseColor=BABYLON.Color3.FromHexString('#1f2937');
+  darkMat.emissiveColor=new BABYLON.Color3(0.03,0.04,0.06);
+  const whiteMat=new BABYLON.StandardMaterial('white',scene);
+  whiteMat.diffuseColor=new BABYLON.Color3(1,1,1);
+  whiteMat.emissiveColor=new BABYLON.Color3(0.28,0.28,0.28);
+  const pinkMat=new BABYLON.StandardMaterial('pink',scene);
+  pinkMat.diffuseColor=BABYLON.Color3.FromHexString('#fb7185');
+  pinkMat.emissiveColor=new BABYLON.Color3(0.2,0.05,0.08);
+  const hatMat=new BABYLON.StandardMaterial('hatMat',scene);
+  hatMat.diffuseColor=BABYLON.Color3.FromHexString('#dc2626');
+  hatMat.emissiveColor=new BABYLON.Color3(0.15,0.02,0.02);
+
+  const body=BABYLON.MeshBuilder.CreateSphere('mBody',{diameter:2.4,segments:24},scene);
+  body.material=furMat;body.parent=root;body.scaling.y=1.02;
+  shadowGen.addShadowCaster(body);
+  const belly=BABYLON.MeshBuilder.CreateSphere('mBelly',{diameter:1.6,segments:20},scene);
+  belly.material=bellyMat;belly.parent=root;
+  belly.position.set(0,-0.22,0.72);belly.scaling.set(1,0.95,0.5);
+  [-1,1].forEach(sx=>{
+    const ear=BABYLON.MeshBuilder.CreateCylinder('ear',{diameterTop:0,diameterBottom:0.62,height:0.85,tessellation:4},scene);
+    ear.material=furMat;ear.parent=root;
+    ear.position.set(sx*0.72,1.18,0.05);
+    ear.rotation.z=sx*-0.28;ear.rotation.y=Math.PI/4;
+    shadowGen.addShadowCaster(ear);
+  });
+  const eyes=[];
+  [-1,1].forEach(sx=>{
+    const w=BABYLON.MeshBuilder.CreateSphere('eyeW',{diameter:0.62,segments:16},scene);
+    w.material=whiteMat;w.parent=root;w.position.set(sx*0.44,0.34,0.98);w.scaling.z=0.6;
+    const p=BABYLON.MeshBuilder.CreateSphere('pupil',{diameter:0.3,segments:14},scene);
+    p.material=darkMat;p.parent=root;p.position.set(sx*0.44,0.34,1.16);p.scaling.z=0.7;
+    eyes.push(p);
+  });
+  const nose=BABYLON.MeshBuilder.CreateSphere('nose',{diameter:0.26,segments:12},scene);
+  nose.material=pinkMat;nose.parent=root;nose.position.set(0,-0.02,1.16);nose.scaling.set(1.3,0.85,0.7);
+  [-1,1].forEach(sx=>{
+    const cheek=BABYLON.MeshBuilder.CreateSphere('cheek',{diameter:0.34,segments:10},scene);
+    cheek.material=pinkMat;cheek.parent=root;
+    cheek.position.set(sx*0.72,-0.08,0.92);cheek.scaling.z=0.4;cheek.visibility=0.75;
+  });
+
+  const hatRoot=new BABYLON.TransformNode('hatRoot',scene);
+  hatRoot.parent=root;hatRoot.position.set(0,1.55,0.05);
+  const capBrim=BABYLON.MeshBuilder.CreateCylinder('capBrim',{diameter:0.9,height:0.12,tessellation:16},scene);
+  capBrim.material=hatMat;capBrim.parent=hatRoot;capBrim.position.y=-0.28;
+  const capTop=BABYLON.MeshBuilder.CreateSphere('capTop',{diameter:0.85,segments:12,slice:0.5},scene);
+  capTop.material=hatMat;capTop.parent=hatRoot;capTop.position.y=0.05;capTop.rotation.x=Math.PI;
+  const cone=BABYLON.MeshBuilder.CreateCylinder('cone',{diameterTop:0.05,diameterBottom:0.95,height:1.3,tessellation:16},scene);
+  cone.material=hatMat;cone.parent=hatRoot;cone.position.y=0.35;
+  const crownBase=BABYLON.MeshBuilder.CreateCylinder('crownBase',{diameter:0.9,height:0.3,tessellation:16},scene);
+  crownBase.material=hatMat;crownBase.parent=hatRoot;crownBase.position.y=-0.15;
+  const spike1=BABYLON.MeshBuilder.CreateCylinder('spike1',{diameterTop:0,diameterBottom:0.15,height:0.3,tessellation:4},scene);
+  spike1.material=hatMat;spike1.parent=hatRoot;spike1.position.set(-0.28,0.15,0);
+  const spike2=spike1.clone('spike2');spike2.parent=hatRoot;spike2.position.set(0,0.2,0);
+  const spike3=spike1.clone('spike3');spike3.parent=hatRoot;spike3.position.set(0.28,0.15,0);
+  const gradBoard=BABYLON.MeshBuilder.CreateBox('gradBoard',{width:1.1,height:0.05,depth:1.1},scene);
+  gradBoard.material=hatMat;gradBoard.parent=hatRoot;gradBoard.position.y=-0.05;
+
+  const hatParts={cap:[capBrim,capTop],wizard:[cone],crown:[crownBase,spike1,spike2,spike3],party:[capBrim,capTop],grad:[capBrim,capTop,gradBoard]};
+  Object.values(hatParts).flat().forEach(m=>m.setEnabled(false));
+
+  function setHat(id){
+    Object.values(hatParts).flat().forEach(m=>m.setEnabled(false));
+    if(id==='none'||!hatParts[id])return;
+    hatParts[id].forEach(m=>m.setEnabled(true));
+    const colors={cap:'#dc2626',wizard:'#7c3aed',crown:'#facc15',party:'#ec4899',grad:'#1f2937'};
+    hatMat.diffuseColor=BABYLON.Color3.FromHexString(colors[id]||'#dc2626');
+    hatMat.emissiveColor=hatMat.diffuseColor.scale(0.25);
+  }
+  function setColor(hex){
+    furMat.diffuseColor=BABYLON.Color3.FromHexString(hex);
+    furMat.emissiveColor=furMat.diffuseColor.scale(0.22);
+  }
+  return {root,eyes,body,furMat,hatMat,setHat,setColor,hatRoot};
+})();
+
+(function applyEquipped(){
+  mascot.setHat(save.equipped.hat);
+  const col=COLORS.find(c=>c.id===save.equipped.color)||COLORS[0];
+  mascot.setColor(col.hex);
+})();
+
+let tweens=[];
+function addTween(dur,onUpdate,onDone){const t={e:0,dur,onUpdate,onDone};tweens.push(t);return t;}
+const easeOutBack=(p)=>{const c1=1.70158,c3=c1+1;return 1+c3*Math.pow(p-1,3)+c1*Math.pow(p-1,2);};
+const easeOutCubic=(p)=>1-Math.pow(1-p,3);
+
+/* ---------------- KARTU ---------------- */
+const PALETTES=[
+  {top:'#60a5fa',bottom:'#2563eb',edge:'#1e3a8a',text:'#ffffff'},
+  {top:'#f472b6',bottom:'#db2777',edge:'#9d174d',text:'#ffffff'},
+  {top:'#34d399',bottom:'#059669',edge:'#065f46',text:'#ffffff'},
+  {top:'#fbbf24',bottom:'#f59e0b',edge:'#92400e',text:'#3b1d00'}
+];
+let activeCards=[];
+function fitFont(ctx,text,maxW,startSize){
+  let size=startSize;
+  ctx.font=`800 ${size}px "Baloo 2", Arial, sans-serif`;
+  while(ctx.measureText(text).width>maxW&&size>28){
+    size-=4;
+    ctx.font=`800 ${size}px "Baloo 2", Arial, sans-serif`;
+  }
+  return size;
+}
+function createCard(text,index){
+  const pal=PALETTES[index%PALETTES.length];
+  const SIZE=512;
+  const dt=new BABYLON.DynamicTexture('cardTex'+index+'_'+Date.now(),{width:SIZE,height:SIZE},scene,true);
+  dt.hasAlpha=true;
+  const ctx=dt.getContext();
+  ctx.clearRect(0,0,SIZE,SIZE);
+  const pad=24,r=84,x=pad,y=pad,w=SIZE-pad*2,h=SIZE-pad*2;
+  ctx.save();ctx.shadowColor='rgba(0,0,0,0.55)';ctx.shadowBlur=22;ctx.shadowOffsetY=8;
+  roundRect(ctx,x,y,w,h,r);ctx.fillStyle=pal.edge;ctx.fill();ctx.restore();
+  const grd=ctx.createLinearGradient(0,y,0,y+h);
+  grd.addColorStop(0,pal.top);grd.addColorStop(1,pal.bottom);
+  roundRect(ctx,x,y,w,h,r);ctx.fillStyle=grd;ctx.fill();
+  roundRect(ctx,x+28,y+22,w-56,h*0.32,r*0.72);ctx.fillStyle='rgba(255,255,255,0.22)';ctx.fill();
+  roundRect(ctx,x+8,y+8,w-16,h-16,r-8);ctx.lineWidth=10;ctx.strokeStyle='rgba(255,255,255,0.8)';ctx.stroke();
+  const fs=fitFont(ctx,text,w-100,215);
+  ctx.font=`800 ${fs}px "Baloo 2", Arial, sans-serif`;
+  ctx.textAlign='center';ctx.textBaseline='middle';
+  ctx.fillStyle='rgba(0,0,0,0.30)';ctx.fillText(text,SIZE/2+5,SIZE/2+11);
+  ctx.fillStyle=pal.text;ctx.fillText(text,SIZE/2,SIZE/2+6);
+  dt.update();
+
+  const root=new BABYLON.TransformNode('cardRoot'+index,scene);
+  const edgeMat=new BABYLON.StandardMaterial('edgeMat'+index,scene);
+  edgeMat.diffuseColor=BABYLON.Color3.FromHexString(pal.edge);
+  edgeMat.specularColor=new BABYLON.Color3(0.2,0.2,0.2);
+  edgeMat.emissiveColor=new BABYLON.Color3(0.12,0.12,0.2);
+  const back=BABYLON.MeshBuilder.CreateBox('cardBack'+index,{width:2.86,height:2.86,depth:0.34},scene);
+  back.material=edgeMat;back.parent=root;back.metadata={cardIndex:index};
+  shadowGen.addShadowCaster(back);
+
+  const faceMat=new BABYLON.StandardMaterial('faceMat'+index,scene);
+  faceMat.diffuseTexture=dt;faceMat.diffuseTexture.hasAlpha=true;
+  faceMat.useAlphaFromDiffuseTexture=true;
+  faceMat.diffuseColor=new BABYLON.Color3(0,0,0);
+  faceMat.emissiveTexture=dt;faceMat.emissiveColor=new BABYLON.Color3(1,1,1);
+  faceMat.specularColor=new BABYLON.Color3(0,0,0);
+  faceMat.backFaceCulling=false;
+
+  const face=BABYLON.MeshBuilder.CreatePlane('cardFace'+index,{size:3.0},scene);
+  face.material=faceMat;face.parent=root;
+  face.rotation.y=Math.PI;  /* ✅ fix: menghadap kamera */
+  face.position.z=0.18;
+  face.metadata={cardIndex:index};
+
+  const card={root,back,face,dt,pal,index,value:text,baseX:0,baseY:0,
+    floatPhase:Math.random()*Math.PI*2,shakeX:0,hovered:false,dead:false};
+  root.scaling=new BABYLON.Vector3(0.01,0.01,0.01);
+  addTween(0.45+index*0.08,(p)=>{
+    const s=easeOutBack(Math.min(1,p*(1+index*0.18)));
+    root.scaling.set(s,s,s);
+  });
+  return card;
+}
+function clearCards(){
+  activeCards.forEach(c=>{try{c.root.dispose(false,true);}catch(e){}try{c.dt.dispose();}catch(e){}});
+  activeCards=[];
+}
+function layoutCards(){
+  const n=activeCards.length;if(!n)return;
+  const aspect=engine.getRenderWidth()/Math.max(1,engine.getRenderHeight());
+  const vertical=aspect<1.05;
+  if(vertical){
+    const spacing=n<=2?3.8:(n===3?3.3:2.85);
+    const startY=((n-1)*spacing)/2;
+    activeCards.forEach((c,i)=>{c.baseX=0;c.baseY=startY-i*spacing;});
+    camera.target.y=-0.6;
+  }else{
+    const spacing=n<=2?4.3:(n===3?3.9:3.15);
+    const startX=-((n-1)*spacing)/2;
+    activeCards.forEach((c,i)=>{c.baseX=startX+i*spacing;c.baseY=0;});
+    camera.target.y=-0.4;
+  }
+  camera.radius=15.5;
+  activeCards.forEach(c=>{c.root.position.x=c.baseX;c.root.position.y=c.baseY;});
+}
+let hoveredCard=null;
+scene.onPointerObservable.add((pi)=>{
+  if(pi.type===BABYLON.PointerEventTypes.POINTERMOVE){
+    const pick=scene.pick(scene.pointerX,scene.pointerY);
+    const idx=(pick&&pick.hit&&pick.pickedMesh&&pick.pickedMesh.metadata)?pick.pickedMesh.metadata.cardIndex:-1;
+    const card=idx>=0?activeCards.find(c=>c.index===idx):null;
+    if(card!==hoveredCard){
+      if(hoveredCard&&!hoveredCard.dead)hoveredCard.hovered=false;
+      hoveredCard=(card&&!card.dead)?card:null;
+      if(hoveredCard)hoveredCard.hovered=true;
+      canvas.style.cursor=hoveredCard?'pointer':'default';
+    }
+  }
+  if(pi.type===BABYLON.PointerEventTypes.POINTERDOWN){
+    const pick=pi.pickInfo;
+    if(pick&&pick.hit&&pick.pickedMesh&&pick.pickedMesh.metadata){
+      const idx=pick.pickedMesh.metadata.cardIndex;
+      const card=activeCards.find(c=>c.index===idx);
+      if(card&&!card.dead)onCardClick(card);
+    }
+  }
+});
+
+/* =========================================================
+   LOGIKA GAME
+   ========================================================= */
+const S={
+  mode:null,difficulty:'easy',diffCfg:DIFFICULTY.easy,
+  questions:[],qi:0,totalQ:8,
+  score:0,correctFirstTry:0,mistakesThisQ:0,totalMistakes:0,
+  combo:0,maxCombo:0,lives:0,hintsLeft:0,
+  locked:true,current:null,running:false,
+  adventure:null,coinsEarned:0,bossHP:0,bossMaxHP:0
+};
+const MODE_INFO={
+  letter:{label:'Kenali Huruf',icon:'🔤'},
+  syllable:{label:'Suku Kata',icon:'🧩'},
+  word:{label:'Baca Kata',icon:'📖'},
+  sentence:{label:'Baca Kalimat',icon:'✨'}
+};
+function genLetterQuestions(n,oc){return pickN(LETTERS,n).map(item=>{const dist=pickN(LETTERS.filter(x=>x.l!==item.l),oc-1).map(x=>x.l);return {emoji:item.e,prompt:'Huruf awal dari kata ini?',wordDisplay:'? '+item.w.slice(1),speakText:item.w,answer:item.l,options:shuffle([item.l,...dist]),successSpeech:`Benar! ${item.l} untuk ${item.w}`};});}
+function genSyllableQuestions(n,oc){return pickN(SYLLABLES,n).map(item=>{const bi=Math.floor(Math.random()*item.s.length);const ans=item.s[bi];const disp=item.s.map((s,i)=>i===bi?'?':s).join(' - ');const dist=pickN(SYLL_POOL.filter(s=>s!==ans),oc-1);return {emoji:item.e,prompt:'Suku kata yang hilang?',wordDisplay:disp,speakText:item.w,answer:ans,options:shuffle([ans,...dist]),successSpeech:`Benar! ${item.w}`};});}
+function genWordQuestions(n,oc){return pickN(WORDS,n).map(item=>{const dist=pickN(WORDS.filter(x=>x.w!==item.w),oc-1).map(x=>x.w);return {emoji:item.e,prompt:'Kata yang cocok dengan gambar?',wordDisplay:'Kata apa ini?',speakText:item.w,answer:item.w,options:shuffle([item.w,...dist]),successSpeech:`Benar! ${item.w}`};});}
+function genSentenceQuestions(n,oc){return pickN(SENTENCES,n).map(item=>{let opts=item.o.slice();const extras=['duduk','berlari','tertawa','menangis','melompat','menari','bermain','bernyanyi'];let ei=0;while(opts.length<oc&&ei<extras.length){if(!opts.includes(extras[ei]))opts.push(extras[ei]);ei++;}return {emoji:item.e,prompt:'Lengkapi kalimat berikut:',wordDisplay:item.s,speakText:item.s.replace('___','...'),answer:item.a,options:shuffle(opts.slice(0,oc)),successSpeech:`Benar! ${item.s.replace('___',item.a)}`};});}
+function buildQuestions(mode,n,oc){
+  switch(mode){case 'letter':return genLetterQuestions(n,oc);case 'syllable':return genSyllableQuestions(n,oc);case 'word':return genWordQuestions(n,oc);case 'sentence':return genSentenceQuestions(n,oc);}
+  return [];
+}
+
+function showToast(text,kind){
+  const wrap=$('toast');const box=wrap.firstElementChild;
+  box.textContent=text;
+  const palette={good:'from-emerald-400 to-emerald-600 border-emerald-800',bad:'from-rose-400 to-rose-600 border-rose-800',warn:'from-amber-400 to-amber-600 border-amber-800',combo:'from-fuchsia-500 to-pink-600 border-fuchsia-800'};
+  box.className='px-7 py-4 rounded-3xl text-2xl md:text-4xl font-extrabold text-white shadow-2xl bg-gradient-to-br border-b-[6px] '+(palette[kind]||palette.good);
+  wrap.classList.remove('hidden');
+  box.classList.remove('toast-anim');void box.offsetWidth;
+  box.classList.add('toast-anim');
+  clearTimeout(showToast._t);
+  showToast._t=setTimeout(()=>wrap.classList.add('hidden'),1250);
+}
+function showAchievementNotif(ach){
+  const wrap=$('achNotif');
+  const el=document.createElement('div');
+  el.className='glass rounded-2xl px-4 py-3 shadow-2xl flex items-center gap-3 border-2 border-yellow-400/60 animate-pop mb-2';
+  el.innerHTML=`<div class="text-3xl">${ach.emoji}</div><div><div class="text-yellow-300 text-[10px] font-bold uppercase tracking-wider">Pencapaian Baru!</div><div class="text-white font-extrabold text-sm">${ach.name}</div><div class="text-white/70 text-xs">${ach.desc}</div></div>`;
+  wrap.appendChild(el);
+  sfxUnlock();
+  speak('Pencapaian baru! '+ach.name,0.95,1.15);
+  setTimeout(()=>{try{wrap.removeChild(el);}catch(e){}},4000);
+}
+function updateHUD(){
+  const pct=S.totalQ?((S.qi)/S.totalQ)*100:0;
+  $('progressBar').style.width=Math.min(100,pct)+'%';
+  $('scoreText').textContent=S.score;
+  $('hudCoins').textContent=save.coins;
+  const livesWrap=$('livesWrap');
+  if(S.diffCfg.lives>0){
+    livesWrap.classList.remove('hidden');livesWrap.classList.add('flex');
+    let s='';for(let i=0;i<S.diffCfg.lives;i++)s+=i<S.lives?'❤️':'🖤';
+    $('livesText').textContent=s;
+  }else{livesWrap.classList.add('hidden');livesWrap.classList.remove('flex');}
+  const hintBtn=$('btnHint');
+  if(S.diffCfg.hints>0){
+    hintBtn.classList.remove('hidden');hintBtn.classList.add('grid');
+    $('hintCount').textContent=S.hintsLeft;
+    hintBtn.style.opacity=S.hintsLeft>0?'1':'.4';
+    hintBtn.style.pointerEvents=S.hintsLeft>0?'auto':'none';
+  }else{hintBtn.classList.add('hidden');hintBtn.classList.remove('grid');}
+}
+function showCombo(combo){
+  if(combo<2)return;
+  const badge=$('comboBadge');
+  $('comboText').textContent='×'+combo;
+  badge.classList.remove('hidden');
+  const inner=badge.firstElementChild;
+  inner.classList.remove('combo-pop');void inner.offsetWidth;
+  inner.classList.add('combo-pop');
+  clearTimeout(showCombo._t);
+  showCombo._t=setTimeout(()=>badge.classList.add('hidden'),1400);
+}
+function updateBossHP(){
+  if(!S.adventure)return;
+  const boss=$('bossWrap');
+  const lvl=getCurrentLevel();
+  if(!lvl||!lvl.boss){boss.classList.add('hidden');return;}
+  boss.classList.remove('hidden');
+  const pct=(S.bossHP/S.bossMaxHP)*100;
+  $('bossHp').style.width=Math.max(0,pct)+'%';
+  const emojis=['👹','👺','👿','🐉','💀'];
+  $('bossEmoji').textContent=emojis[S.qi%emojis.length];
+}
+function getCurrentLevel(){
+  if(!S.adventure)return null;
+  const w=WORLDS.find(x=>x.id===S.adventure.worldId);
+  if(!w)return null;
+  return w.levels.find(l=>l.id===S.adventure.levelId)||null;
+}
+
+/* TIMER */
+let timerInterval=null,timerStart=0,timerDuration=0,timerWarned=false;
+function startTimer(){
+  stopTimer();timerWarned=false;
+  const wrap=$('timerWrap');const bar=$('timerBar');
+  if(!S.diffCfg.timePerQ){wrap.classList.add('hidden');return;}
+  wrap.classList.remove('hidden');
+  bar.style.width='100%';
+  bar.style.background='linear-gradient(90deg,#34d399,#a3e635,#facc15)';
+  bar.classList.remove('pulse-glow');
+  timerDuration=S.diffCfg.timePerQ;
+  timerStart=performance.now();
+  timerInterval=setInterval(()=>{
+    if(S.locked)return;
+    const remaining=Math.max(0,timerDuration-(performance.now()-timerStart)/1000);
+    const pct=(remaining/timerDuration)*100;
+    bar.style.width=pct+'%';
+    if(remaining<=3&&!timerWarned){timerWarned=true;bar.style.background='linear-gradient(90deg,#f87171,#ef4444)';bar.classList.add('pulse-glow');}
+    else if(remaining<=7&&remaining>3){bar.style.background='linear-gradient(90deg,#fbbf24,#f59e0b)';}
+    if(remaining<=0){stopTimer();onTimeOut();}
+  },80);
+}
+function stopTimer(){
+  if(timerInterval){clearInterval(timerInterval);timerInterval=null;}
+  const bar=$('timerBar');if(bar)bar.classList.remove('pulse-glow');
+}
+function onTimeOut(){
+  if(S.locked)return;
+  S.locked=true;S.combo=0;S.totalMistakes++;
+  sfxWrong();showToast('⏰ Waktu habis!','bad');
+  speak('Waktu habis',0.9,1.1);
+  if(S.diffCfg.lives>0){
+    S.lives--;updateHUD();
+    if(S.lives<=0){setTimeout(()=>gameOver(),1400);return;}
+  }
+  addTween(0.5,(p)=>{activeCards.forEach(c=>{c.dead=true;c.face.visibility=1-p;c.back.visibility=1-p;});});
+  setTimeout(()=>{S.qi++;if(S.qi>=S.totalQ)finishGame();else renderQuestion();},1600);
+}
+function useHint(){
+  if(S.locked||S.hintsLeft<=0)return;
+  ensureAudio();sfxHint();
+  S.hintsLeft--;
+  const wrongs=activeCards.filter(c=>!c.dead&&c.value!==S.current.answer);
+  if(wrongs.length){
+    const target=wrongs[Math.floor(Math.random()*wrongs.length)];
+    target.dead=true;
+    addTween(0.5,(p)=>{const s=1-p*0.9;target.root.scaling.set(s,s,s);target.face.visibility=1-p;target.back.visibility=1-p;},()=>{target.root.scaling.set(0.01,0.01,0.01);});
+    showToast('💡 Satu pilihan dihilangkan','warn');
+  }
+  updateHUD();
+}
+function renderQuestion(){
+  const q=S.questions[S.qi];if(!q)return;
+  S.current=q;S.locked=false;S.mistakesThisQ=0;
+  $('qEmoji').textContent=q.emoji;
+  $('qPrompt').textContent=q.prompt;
+  $('qWord').textContent=q.wordDisplay;
+  updateHUD();updateBossHP();
+  clearCards();
+  q.options.forEach((opt,i)=>activeCards.push(createCard(opt,i)));
+  layoutCards();startTimer();
+  setTimeout(()=>speak(q.speakText,0.82,1.1),260);
+}
+function onCardClick(card){
+  if(S.locked||card.dead)return;
+  ensureAudio();sfxTap();
+  const q=S.current;
+  if(card.value===q.answer){
+    S.locked=true;stopTimer();card.dead=true;
+    confetti.emitter=card.root.position.clone().add(new BABYLON.Vector3(0,0.4,0.6));
+    confetti.manualEmitCount=110;
+    addTween(0.55,(p)=>{const s=1+0.42*Math.sin(Math.PI*p);card.root.scaling.set(s,s,s);card.root.rotation.z=Math.sin(Math.PI*p)*0.14;},()=>{card.root.rotation.z=0;});
+    S.combo++;
+    if(S.combo>S.maxCombo)S.maxCombo=S.combo;
+    if(S.maxCombo>save.maxCombo)save.maxCombo=S.maxCombo;
+    const comboMult=1+Math.min(S.combo-1,4)*0.25;
+    const wrongPen=S.mistakesThisQ*3;
+    const gained=Math.max(5,Math.round(S.diffCfg.base*comboMult)-wrongPen);
+    S.score+=gained;save.totalCorrect++;
+    if(S.mistakesThisQ===0)S.correctFirstTry++;
+    if(S.adventure&&getCurrentLevel()?.boss){S.bossHP=Math.max(0,S.bossHP-1);updateBossHP();}
+    updateHUD();
+    sfxCorrect();
+    const praises=[`🎉 Hebat! Kamu baca "${q.answer}" dengan tepat!`,`✅ Benar! "${q.answer}" — keren!`,`⭐ Pintar! "${q.answer}" tepat sekali!`,`🌟 Hebat! Lanjutkan!`];
+    const praise=S.mistakesThisQ===0?praises[Math.floor(Math.random()*praises.length)]:'✅ Benar!';
+    if(S.combo>=3){sfxCombo();showCombo(S.combo);showToast('🔥 Combo ×'+S.combo+'!','combo');}
+    else{showToast(praise,'good');}
+    speak(q.successSpeech,0.86,1.15);
+    activeCards.forEach(c=>{if(c!==card)c.dead=true;});
+    addTween(1.0,(p)=>{activeCards.forEach(c=>{if(c===card)return;const o=1-p*0.85;c.face.visibility=o;c.back.visibility=o;});});
+    setTimeout(()=>{S.qi++;if(S.qi>=S.totalQ)finishGame();else renderQuestion();},1750);
+  }else{
+    S.mistakesThisQ++;S.totalMistakes++;S.combo=0;
+    sfxWrong();showToast('💪 Coba lagi ya!','bad');
+    addTween(0.42,(p)=>{card.shakeX=Math.sin(p*Math.PI*6)*0.30*(1-p);card.root.position.x=card.baseX+card.shakeX;},()=>{card.shakeX=0;card.root.position.x=card.baseX;});
+    addTween(0.35,(p)=>{card.face.visibility=1-p*0.72;card.back.visibility=1-p*0.72;},()=>{card.dead=true;});
+    if(S.diffCfg.lives>0){
+      S.lives--;updateHUD();
+      if(S.lives<=0){S.locked=true;stopTimer();setTimeout(()=>gameOver(),1200);return;}
+    }
+    S.locked=false;
+    speak('Coba lagi ya',0.95,1.2);
+  }
+}
+
+/* ALUR */
+function startGame(mode,diffKey,totalQ){
+  ensureAudio();
+  S.mode=mode;S.difficulty=diffKey||S.difficulty;
+  S.diffCfg=DIFFICULTY[S.difficulty];
+  S.qi=0;S.score=0;S.correctFirstTry=0;S.totalMistakes=0;
+  S.combo=0;S.maxCombo=0;
+  S.lives=S.diffCfg.lives;S.hintsLeft=S.diffCfg.hints;
+  S.totalQ=totalQ||8;S.running=true;S.coinsEarned=0;
+  if(!S.adventure)BGM.switchTo('menu');
+  S.questions=buildQuestions(mode,S.totalQ,S.diffCfg.options);
+  const lvl=getCurrentLevel();
+  if(S.adventure&&lvl&&lvl.boss){S.bossMaxHP=S.totalQ;S.bossHP=S.totalQ;}
+  else{S.bossHP=0;S.bossMaxHP=0;}
+  $('bossWrap').classList.add('hidden');
+  save.totalGamesPlayed++;
+  const today=todayStr();
+  if(save.lastPlayed!==today){
+    if(save.lastPlayed){
+      const diff=daysBetween(save.lastPlayed,today);
+      if(diff===1)save.streak++;
+      else if(diff>1)save.streak=1;
+    }else save.streak=1;
+    save.lastPlayed=today;saveGame();
+  }
+  hideAllScreens();
+  $('hud').classList.remove('opacity-0');$('hud').classList.add('opacity-100');
+  $('qPanel').classList.remove('opacity-0');$('qPanel').classList.add('opacity-100');
+  updateHUD();renderQuestion();
+  addTween(0.9,(p)=>{camera.radius=26-10.5*easeOutCubic(p);});
+}
+function startLevel(worldId,levelId){
+  const world=WORLDS.find(w=>w.id===worldId);if(!world)return;
+  const level=world.levels.find(l=>l.id===levelId);if(!level)return;
+  S.adventure={worldId,levelId};
+  S.mode=world.mode;S.difficulty=level.diff;S.diffCfg=DIFFICULTY[level.diff];
+  BGM.switchTo(worldId); /* 🎵 musik per dunia */
+  const idx=world.levels.findIndex(l=>l.id===levelId);
+  $('levelBadge').classList.remove('hidden');
+  $('levelIcon').textContent=world.icon;
+  $('levelName').textContent=world.name.split(' ')[0]+' '+(idx+1)+'/'+world.levels.length;
+  const storyKey='seen_'+worldId;
+  if(!save[storyKey]){
+    save[storyKey]=true;saveGame();
+    showStoryIntro(world,()=>startGame(world.mode,level.diff,level.qs));
+  }else startGame(world.mode,level.diff,level.qs);
+}
+
+/* STORY INTRO */
+let storyIntroCallback=null,storyIntroPage=0,storyIntroWorld=null;
+function showStoryIntro(world,cb){
+  storyIntroWorld=world;storyIntroCallback=cb;storyIntroPage=0;
+  $('storyIntroScreen').classList.remove('hidden');
+  $('storyIntroScreen').classList.add('flex');
+  renderStoryPage();
+}
+function renderStoryPage(){
+  const story=STORIES[storyIntroWorld.id];if(!story)return;
+  const page=story.pages[storyIntroPage];
+  const content=$('storyIntroContent');
+  content.innerHTML=`
+    <div class="text-6xl md:text-7xl mb-4 bounce-in">${page.e}</div>
+    <div class="text-white/60 text-xs font-bold uppercase tracking-wider mb-2">${story.title} — ${storyIntroPage+1}/${story.pages.length}</div>
+    <div class="text-white text-lg md:text-2xl font-bold leading-snug">${page.t}</div>
+    <div class="flex justify-center gap-1.5 mt-4">${story.pages.map((_,i)=>`<span class="w-2.5 h-2.5 rounded-full ${i===storyIntroPage?'bg-yellow-400':'bg-white/30'}"></span>`).join('')}</div>
+    <button id="storyPageRecord" class="mt-4 btn3d rounded-2xl px-4 py-2 font-extrabold text-white text-sm bg-gradient-to-br from-rose-400 to-red-600 border-b-4 border-red-800 shadow-lg">🎤 Rekam suaramu baca ini</button>`;
+  speak(page.t,0.9,1.1);
+  $('btnStoryNext').textContent=storyIntroPage===story.pages.length-1?'Ayo Mulai! 🚀':'Lanjut →';
+  const recBtn=$('storyPageRecord');
+  if(recBtn)recBtn.addEventListener('click',()=>quickRecord(page.t));
+}
+$('btnStoryNext').addEventListener('click',()=>{
+  sfxTap();
+  const story=STORIES[storyIntroWorld.id];
+  storyIntroPage++;
+  if(storyIntroPage>=story.pages.length){
+    $('storyIntroScreen').classList.add('hidden');
+    $('storyIntroScreen').classList.remove('flex');
+    if(storyIntroCallback)storyIntroCallback();
+  }else renderStoryPage();
+});
+$('btnStorySkip').addEventListener('click',()=>{
+  sfxTap();
+  $('storyIntroScreen').classList.add('hidden');
+  $('storyIntroScreen').classList.remove('flex');
+  if(storyIntroCallback)storyIntroCallback();
+});
+
+/* VOICE RECORDING */
+let mediaRecorder=null,audioChunks=[],recordedBlob=null,recordingStream=null,recTimerInterval=null,recStartTime=0;
+async function startRecording(onStop){
+  if(mediaRecorder&&mediaRecorder.state==='recording'){mediaRecorder.stop();return true;}
+  try{
+    recordingStream=await navigator.mediaDevices.getUserMedia({audio:true});
+    mediaRecorder=new MediaRecorder(recordingStream);
+    audioChunks=[];
+    mediaRecorder.ondataavailable=e=>{if(e.data.size>0)audioChunks.push(e.data);};
+    mediaRecorder.onstop=()=>{
+      recordedBlob=new Blob(audioChunks,{type:'audio/webm'});
+      if(recordingStream){recordingStream.getTracks().forEach(t=>t.stop());recordingStream=null;}
+      stopRecTimer();
+      if(onStop)onStop(recordedBlob);
+    };
+    mediaRecorder.start();
+    startRecTimer();
+    return true;
+  }catch(err){
+    console.warn('Mic error:',err);
+    alert('Tidak bisa mengakses mikrofon. Mohon izinkan akses mikrofon di pengaturan browser, lalu coba lagi.');
+    return false;
+  }
+}
+function stopRecording(){if(mediaRecorder&&mediaRecorder.state==='recording')mediaRecorder.stop();stopRecTimer();}
+function startRecTimer(){
+  recStartTime=performance.now();
+  const el=$('recTimer');const status=$('recStatus');
+  if(status)status.textContent='Sedang merekam... bicara sekarang!';
+  if(el)el.textContent='⏱️ 0.0 detik (maks 10)';
+  clearInterval(recTimerInterval);
+  recTimerInterval=setInterval(()=>{
+    const sec=(performance.now()-recStartTime)/1000;
+    if($('recTimer'))$('recTimer').textContent=`⏱️ ${sec.toFixed(1)} detik (maks 10)`;
+    if(sec>=10)stopRecording();
+  },100);
+  if($('recDot'))$('recDot').classList.remove('hidden');
+  if($('recBtnText'))$('recBtnText').textContent='⏹️ Berhenti';
+  if($('btnRecStart'))$('btnRecStart').classList.add('rec-pulse');
+}
+function stopRecTimer(){
+  clearInterval(recTimerInterval);
+  if($('recDot'))$('recDot').classList.add('hidden');
+  if($('recBtnText'))$('recBtnText').textContent='🎤 Mulai Rekam';
+  if($('btnRecStart'))$('btnRecStart').classList.remove('rec-pulse');
+}
+function playRecorded(){
+  if(!recordedBlob)return;
+  const url=URL.createObjectURL(recordedBlob);
+  const audio=new Audio(url);audio.play();
+  if($('recStatus'))$('recStatus').textContent='▶️ Memutar rekaman...';
+  audio.onended=()=>{URL.revokeObjectURL(url);if($('recStatus'))$('recStatus').textContent='✅ Selesai memutar.';};
+}
+function clearRecorded(){
+  recordedBlob=null;audioChunks=[];
+  if($('recStatus'))$('recStatus').textContent='🗑️ Rekaman dihapus.';
+  if($('recTimer'))$('recTimer').textContent='⏱️ Siap merekam (maks 10 detik)';
+  if($('btnRecPlay')){$('btnRecPlay').disabled=true;$('btnRecPlay').classList.add('opacity-40');}
+  if($('btnRecClear')){$('btnRecClear').disabled=true;$('btnRecClear').classList.add('opacity-40');}
+}
+function quickRecord(textToRead){
+  if(!textToRead)textToRead='';
+  ensureAudio();
+  startRecording((blob)=>{
+    const url=URL.createObjectURL(blob);
+    const audio=new Audio(url);audio.play();
+    showToast('🎤 Rekamanmu diputar!','good');
+    audio.onended=()=>URL.revokeObjectURL(url);
+  });
+  showToast('🎤 Rekam suaramu!','warn');
+  speak(textToRead,0.85,1.1);
+}
+
+/* END GAME */
+function gameOver(){
+  stopTimer();S.running=false;S.locked=true;clearCards();
+  sfxGameOver();speak('Nyawa habis. Ayo coba lagi!',0.9,1.1);
+  showResult(true);
+}
+function finishGame(){
+  stopTimer();S.running=false;S.locked=true;clearCards();
+  sfxWin();showResult(false);
+}
+function calcStars(benar,total,mistakes,isOver){
+  if(isOver)return 0;
+  if(mistakes===0)return 3;
+  const acc=benar/total;
+  if(acc>=0.85)return 3;
+  if(acc>=0.6)return 2;
+  return 1;
+}
+function pickCollectible(){
+  const pool=[];
+  COLLECTIBLES.forEach(c=>{const w=RARITY_WEIGHT[c.rarity]||10;for(let i=0;i<w;i++)pool.push(c);});
+  return pool[Math.floor(Math.random()*pool.length)];
+}
+function showResult(isGameOver){
+  const benar=Math.max(0,Math.min(S.totalQ,S.totalQ-S.totalMistakes));
+  const salah=Math.max(0,S.totalMistakes);
+  const stars=calcStars(benar,S.totalQ,S.totalMistakes,isGameOver);
+  let coinsGained=0,collectible=null;
+  if(!isGameOver){
+    coinsGained=S.correctFirstTry*S.diffCfg.coinBase;
+    if(S.totalMistakes===0)coinsGained+=15;
+    const lvl=getCurrentLevel();
+    const isBossWin=S.adventure&&lvl&&lvl.boss&&S.bossHP<=0;
+    if(isBossWin)coinsGained+=25;
+    coinsGained+=Math.max(0,S.maxCombo-2)*2;
+    save.coins+=coinsGained;S.coinsEarned=coinsGained;
+    const dropChance=stars===3?0.65:(stars===2?0.4:0.25);
+    if(Math.random()<dropChance){
+      collectible=pickCollectible();
+      if(!save.collection[collectible.id])save.collection[collectible.id]=1;
+      else{save.collection[collectible.id]++;save.coins+=10;coinsGained+=10;}
+    }
+    if(S.adventure){
+      const prev=getStars(S.adventure.levelId);
+      if(stars>prev){
+        save.levels[S.adventure.levelId]={stars,bestScore:S.score};
+        if(stars===3)save.totalPerfectLevels++;
+        save.totalLevelsCompleted++;
+        const today=todayStr();
+        save.history[today]=(save.history[today]||0)+stars;
+        const totalStars=getTotalStars();
+        const unlockedPages=Math.floor(totalStars/3);
+        for(let i=0;i<Math.min(unlockedPages,STORY_PAGES.length);i++){
+          if(!save.storyPagesUnlocked[STORY_PAGES[i].id])save.storyPagesUnlocked[STORY_PAGES[i].id]=true;
+        }
+      }else if(!save.levels[S.adventure.levelId]){
+        save.levels[S.adventure.levelId]={stars,bestScore:S.score};
+        save.totalLevelsCompleted++;
+      }else if(S.score>(save.levels[S.adventure.levelId].bestScore||0)){
+        save.levels[S.adventure.levelId].bestScore=S.score;
+      }
+    }
+    saveGame();
+  }
+  const starEls=[$('resStar1'),$('resStar2'),$('resStar3')];
+  starEls.forEach((el,i)=>{
+    el.textContent=i<stars?'⭐':'☆';
+    el.className='text-4xl md:text-6xl '+(i<stars?'opacity-100':'opacity-30');
+    if(i<stars)setTimeout(()=>{el.classList.add('star-pop','float-star');sfxTap();},200+i*250);
+  });
+  $('resCorrect').textContent=benar;
+  $('resWrong').textContent=salah;
+  $('resCombo').textContent='×'+S.maxCombo;
+  $('resScore').textContent=S.score;
+  $('resCoins').textContent=isGameOver?'+0':'+'+coinsGained;
+  const cDiv=$('resCollectible');
+  if(collectible&&!isGameOver){
+    cDiv.classList.remove('hidden');
+    $('resCollectibleEmoji').textContent=collectible.emoji;
+    $('resCollectibleName').textContent=collectible.name+' ('+RARITY_LABEL[collectible.rarity]+')';
+    setTimeout(()=>sfxCoin(),800);
+  }else cDiv.classList.add('hidden');
+  const titles=['Semangat Terus! 🌱','Bagus Sekali! 🌟','Luar Biasa! 🏆'];
+  const subs=['Terus berlatih ya, kamu pasti bisa!','Kamu sudah pandai membaca. Ayo main lagi!','Kamu hebat! Sudah jago membaca!'];
+  if(isGameOver){$('resTitle').textContent='Nyawa Habis! 💔';$('resSub').textContent='Ayo coba lagi, kamu pasti bisa!';}
+  else if(S.adventure){
+    const world=WORLDS.find(w=>w.id===S.adventure.worldId);
+    const lvl=getCurrentLevel();
+    $('resTitle').textContent=stars===3?'Sempurna! 🏆':(stars===2?'Bagus! 🌟':'Hebat! 🎉');
+    $('resSub').textContent=world.icon+' '+world.name+' — '+lvl.name;
+  }else{$('resTitle').textContent=titles[stars-1];$('resSub').textContent=subs[stars-1];}
+  $('resBadge').classList.toggle('hidden',!(S.totalMistakes===0&&!isGameOver));
+  const btnNext=$('btnNextLevel');
+  if(S.adventure&&!isGameOver){
+    const next=findNextLevel(S.adventure.worldId,S.adventure.levelId);
+    if(next){btnNext.classList.remove('hidden');btnNext.dataset.worldId=next.worldId;btnNext.dataset.levelId=next.levelId;}
+    else btnNext.classList.add('hidden');
+  }else btnNext.classList.add('hidden');
+  $('resultScreen').classList.remove('hidden');
+  $('resultScreen').classList.add('flex');
+  setTimeout(()=>checkAchievements(),1000);
+  if(!isGameOver&&S.adventure&&save.totalLevelsCompleted>0&&save.totalLevelsCompleted%5===0){
+    setTimeout(()=>{
+      $('partyCount').textContent=save.totalLevelsCompleted;
+      $('partyScreen').classList.remove('hidden');$('partyScreen').classList.add('flex');
+      spawnPartyConfetti();sfxParty();
+      speak('Pesta! Kamu menyelesaikan '+save.totalLevelsCompleted+' level!',0.9,1.15);
+    },2200);
+  }
+}
+function spawnPartyConfetti(){
+  const wrap=$('partyConfetti');wrap.innerHTML='';
+  const colors=['#fbbf24','#f472b6','#60a5fa','#34d399','#a855f7','#fb7185'];
+  for(let i=0;i<60;i++){
+    const p=document.createElement('div');
+    p.className='confetti-piece';
+    p.style.left=Math.random()*100+'%';
+    p.style.background=colors[Math.floor(Math.random()*colors.length)];
+    p.style.animationDelay=(Math.random()*0.8)+'s';
+    p.style.animationDuration=(2+Math.random()*2)+'s';
+    p.style.borderRadius=Math.random()>0.5?'50%':'2px';
+    wrap.appendChild(p);
+  }
+}
+$('btnPartyClose').addEventListener('click',()=>{sfxTap();$('partyScreen').classList.add('hidden');$('partyScreen').classList.remove('flex');});
+function findNextLevel(worldId,levelId){
+  const wIdx=WORLDS.findIndex(w=>w.id===worldId);if(wIdx<0)return null;
+  const world=WORLDS[wIdx];
+  const lIdx=world.levels.findIndex(l=>l.id===levelId);
+  if(lIdx<world.levels.length-1)return {worldId,levelId:world.levels[lIdx+1].id};
+  if(wIdx<WORLDS.length-1){
+    const nextWorld=WORLDS[wIdx+1];
+    if(isWorldUnlocked(nextWorld))return {worldId:nextWorld.id,levelId:nextWorld.levels[0].id};
+  }
+  return null;
+}
+function checkAchievements(){
+  const newlyUnlocked=[];
+  ACHIEVEMENTS.forEach(a=>{
+    if(!save.achievements[a.id]&&a.check(save)){save.achievements[a.id]=true;newlyUnlocked.push(a);}
+  });
+  if(newlyUnlocked.length){saveGame();newlyUnlocked.forEach((a,i)=>setTimeout(()=>showAchievementNotif(a),i*900));}
+}
+
+/* NAVIGASI */
+function hideAllScreens(){
+  ['menuScreen','adventureScreen','freeplayScreen','albumScreen','shopScreen','achScreen','storyScreen','resultScreen','storyIntroScreen','giftScreen','partyScreen','settingsScreen','belajarScreen','confirmDialog']
+    .forEach(id=>{const el=$(id);if(el){el.classList.add('hidden');el.classList.remove('flex');}});
+}
+function goMenu(){
+  stopTimer();S.running=false;S.locked=true;S.adventure=null;
+  BGM.switchTo('menu');
+  clearCards();
+  try{speechSynthesis.cancel();}catch(e){}
+  hideAllScreens();
+  $('menuScreen').classList.remove('hidden');
+  $('hud').classList.add('opacity-0');$('hud').classList.remove('opacity-100');
+  $('qPanel').classList.add('opacity-0');$('qPanel').classList.remove('opacity-100');
+  $('comboBadge').classList.add('hidden');
+  $('btnHint').classList.add('hidden');
+  $('levelBadge').classList.add('hidden');
+  $('bossWrap').classList.add('hidden');
+  refreshMenuStats();
+  addTween(0.8,(p)=>{camera.radius=15.5+10.5*easeOutCubic(p);});
+}
+function refreshMenuStats(){
+  const totalStars=getTotalStars();
+  $('menuStars').textContent=totalStars;
+  $('menuCoins').textContent=save.coins;
+  $('menuStreak').textContent=save.streak;
+  const coll=Object.keys(save.collection).length;
+  $('menuAlbum').textContent=coll+'/'+COLLECTIBLES.length;
+  $('albumCount').textContent=coll;
+  $('achCount').textContent=Object.keys(save.achievements).length;
+  $('mapTotalStars').textContent=totalStars;
+}
+function showAdventureMap(){
+  ensureAudio();sfxTap();
+  BGM.switchTo('menu');
+  refreshMenuStats();renderWorlds();
+  hideAllScreens();
+  $('adventureScreen').classList.remove('hidden');$('adventureScreen').classList.add('flex');
+}
+function renderWorlds(){
+  const container=$('worldsContainer');container.innerHTML='';
+  WORLDS.forEach((world,wIdx)=>{
+    const unlocked=isWorldUnlocked(world);
+    const card=document.createElement('div');
+    card.className='world-card rounded-3xl p-3 md:p-5 shadow-2xl border-b-[6px] border-black/40 bg-gradient-to-br '+world.color+(unlocked?'':' locked');
+    let header=`<div class="flex items-center gap-3 mb-3"><div class="text-3xl md:text-5xl">${world.icon}</div><div class="flex-1"><div class="text-white font-extrabold text-base md:text-xl leading-tight">${world.name}</div><div class="text-white/80 text-[10px] md:text-xs font-semibold">${world.levels.length} level · ${MODE_INFO[world.mode].label}</div></div>${unlocked?'':'<div class="text-2xl md:text-3xl">🔒</div>'}</div>`;
+    let lockInfo='';
+    if(!unlocked)lockInfo=`<div class="bg-black/30 rounded-xl px-3 py-2 text-center mb-3 border border-white/20"><span class="text-white/90 text-[10px] md:text-sm font-bold">Perlu ${world.unlockStars} ⭐ untuk membuka (kamu: ${getTotalStars()} ⭐)</span></div>`;
+    let nodes='<div class="grid grid-cols-3 md:grid-cols-4 gap-2 md:gap-3">';
+    world.levels.forEach((lvl,lIdx)=>{
+      const lvlUnlocked=isLevelUnlocked(world,lIdx)&&unlocked;
+      const stars=getStars(lvl.id);const isBoss=lvl.boss;
+      const starsHTML=`<div class="flex justify-center gap-0.5 text-xs md:text-base mt-0.5"><span class="${stars>=1?'opacity-100':'opacity-30'}">⭐</span><span class="${stars>=2?'opacity-100':'opacity-30'}">⭐</span><span class="${stars>=3?'opacity-100':'opacity-30'}">⭐</span></div>`;
+      const inner=lvlUnlocked?`
+        <div class="node-circle rounded-full grid place-items-center shadow-xl border-4 border-white/80"
+             style="width:64px;height:64px;background:${isBoss?'linear-gradient(135deg,#fbbf24,#dc2626)':`linear-gradient(135deg, ${world.nodeColor}, ${world.nodeColor}dd)`};">
+          <span class="text-white text-xl md:text-2xl font-extrabold drop-shadow-lg">${isBoss?'👑':(lIdx+1)}</span>
+        </div>
+        <div class="text-white text-[9px] md:text-xs font-bold text-center mt-1 leading-tight max-w-[80px]">${lvl.name}</div>
+        ${starsHTML}`:`
+        <div class="node-circle rounded-full grid place-items-center shadow-xl border-4 border-white/30 bg-black/40" style="width:64px;height:64px;"><span class="text-xl md:text-2xl">🔒</span></div>
+        <div class="text-white/60 text-[9px] md:text-xs font-bold text-center mt-1 leading-tight max-w-[80px]">${lvl.name}</div>
+        ${starsHTML}`;
+      nodes+=`<div class="lvl-node flex flex-col items-center ${lvlUnlocked?'':'locked'}" data-world="${world.id}" data-level="${lvl.id}" data-unlocked="${lvlUnlocked}">${inner}</div>`;
+    });
+    nodes+='</div>';
+    card.innerHTML=header+lockInfo+nodes;
+    container.appendChild(card);
+  });
+  document.querySelectorAll('.lvl-node').forEach(node=>{
+    node.addEventListener('click',()=>{
+      if(node.dataset.unlocked!=='true'){sfxWrong();showToast('🔒 Selesaikan level sebelumnya!','bad');return;}
+      ensureAudio();sfxTap();
+      startLevel(node.dataset.world,node.dataset.level);
+    });
+  });
+}
+function showFreeplay(){
+  ensureAudio();sfxTap();
+  hideAllScreens();
+  $('freeplayScreen').classList.remove('hidden');$('freeplayScreen').classList.add('flex');
+}
+document.querySelectorAll('.modeBtn').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    ensureAudio();sfxTap();
+    const mode=btn.dataset.mode;S.adventure=null;
+    $('levelBadge').classList.add('hidden');
+    speak(MODE_INFO[mode].label,0.95,1.15);
+    startGame(mode,S.difficulty,8);
+  });
+});
+document.querySelectorAll('.diff-btn').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    ensureAudio();sfxTap();
+    S.difficulty=btn.dataset.diff;S.diffCfg=DIFFICULTY[S.difficulty];
+    document.querySelectorAll('.diff-btn').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    speak(DIFFICULTY[S.difficulty].name,0.95,1.15);
+  });
+});
+function showAlbum(){
+  ensureAudio();sfxTap();
+  renderAlbum();hideAllScreens();
+  $('albumScreen').classList.remove('hidden');$('albumScreen').classList.add('flex');
+}
+function renderAlbum(){
+  const container=$('albumContainer');container.innerHTML='';
+  COLLECTIBLES.forEach(c=>{
+    const owned=save.collection[c.id]||0;
+    const card=document.createElement('div');
+    const bgClass=owned?RARITY_BG[c.rarity]:'from-white/5 to-white/10 border-white/15';
+    card.className=`item-card rounded-2xl p-3 text-center border-2 bg-gradient-to-br ${bgClass} ${owned?'':'locked'}`;
+    card.innerHTML=`<div class="item-emoji text-4xl md:text-5xl mb-1">${owned?c.emoji:'❓'}</div><div class="text-white font-extrabold text-[11px] md:text-sm leading-tight">${owned?c.name:'???'}</div><div class="text-white/60 text-[9px] md:text-xs font-bold uppercase mt-0.5">${RARITY_LABEL[c.rarity]}</div>${owned>1?`<div class="mt-1 inline-block bg-yellow-400/90 text-amber-900 rounded-full px-2 py-0.5 text-[9px] font-extrabold">×${owned}</div>`:''}`;
+    container.appendChild(card);
+  });
+}
+function showShop(){
+  ensureAudio();sfxTap();
+  renderShop();hideAllScreens();
+  $('shopScreen').classList.remove('hidden');$('shopScreen').classList.add('flex');
+}
+function renderShop(){
+  $('shopCoins').textContent=save.coins;
+  const hatsC=$('hatsContainer');hatsC.innerHTML='';
+  HATS.forEach(item=>{
+    const owned=save.ownedHats.includes(item.id)||item.price===0;
+    const equipped=save.equipped.hat===item.id;
+    const card=document.createElement('div');
+    card.className=`item-card rounded-2xl p-3 text-center border-2 bg-gradient-to-br ${equipped?'from-yellow-400/40 to-amber-500/40 border-yellow-300':'from-white/5 to-white/10 border-white/15'} ${owned?'':'locked'}`;
+    card.innerHTML=`<div class="item-emoji text-4xl md:text-5xl mb-1">${item.emoji}</div><div class="text-white font-extrabold text-[11px] md:text-sm leading-tight">${item.name}</div><div class="text-white/80 text-[10px] md:text-xs font-bold mt-1">${equipped?'✅ Dipakai':(owned?'Klik untuk pakai':`<span class="text-yellow-300">🪙 ${item.price}</span>`)}</div>`;
+    card.style.cursor='pointer';
+    card.addEventListener('click',()=>{
+      ensureAudio();
+      if(owned){sfxTap();save.equipped.hat=item.id;mascot.setHat(item.id);saveGame();renderShop();speak(item.name,0.95,1.15);}
+      else if(save.coins>=item.price){sfxCoin();save.coins-=item.price;save.ownedHats.push(item.id);save.equipped.hat=item.id;mascot.setHat(item.id);saveGame();renderShop();$('hudCoins').textContent=save.coins;showToast('🎉 '+item.name+' dibeli!','good');speak(item.name+' sudah dibeli!',0.95,1.15);}
+      else{sfxWrong();showToast('🪙 Koin belum cukup!','bad');speak('Koin belum cukup',0.95,1.1);}
+    });
+    hatsC.appendChild(card);
+  });
+  const colorsC=$('colorsContainer');colorsC.innerHTML='';
+  COLORS.forEach(item=>{
+    const owned=save.ownedColors.includes(item.id)||item.price===0;
+    const equipped=save.equipped.color===item.id;
+    const card=document.createElement('div');
+    card.className=`item-card rounded-2xl p-3 text-center border-2 bg-gradient-to-br ${equipped?'from-yellow-400/40 to-amber-500/40 border-yellow-300':'from-white/5 to-white/10 border-white/15'} ${owned?'':'locked'}`;
+    card.innerHTML=`<div class="w-10 h-10 md:w-14 md:h-14 rounded-full mx-auto mb-2 border-4 border-white/80 shadow-lg" style="background:${item.hex};"></div><div class="text-white font-extrabold text-[11px] md:text-sm leading-tight">${item.name}</div><div class="text-white/80 text-[10px] md:text-xs font-bold mt-1">${equipped?'✅ Dipakai':(owned?'Klik untuk pakai':`<span class="text-yellow-300">🪙 ${item.price}</span>`)}</div>`;
+    card.style.cursor='pointer';
+    card.addEventListener('click',()=>{
+      ensureAudio();
+      if(owned){sfxTap();save.equipped.color=item.id;mascot.setColor(item.hex);saveGame();renderShop();speak(item.name,0.95,1.15);}
+      else if(save.coins>=item.price){sfxCoin();save.coins-=item.price;save.ownedColors.push(item.id);save.equipped.color=item.id;mascot.setColor(item.hex);saveGame();renderShop();$('hudCoins').textContent=save.coins;showToast('🎨 '+item.name+' dibeli!','good');}
+      else{sfxWrong();showToast('🪙 Koin belum cukup!','bad');}
+    });
+    colorsC.appendChild(card);
+  });
+}
+function showAchievements(){
+  ensureAudio();sfxTap();
+  renderAchievements();hideAllScreens();
+  $('achScreen').classList.remove('hidden');$('achScreen').classList.add('flex');
+}
+function renderAchievements(){
+  const container=$('achContainer');container.innerHTML='';
+  ACHIEVEMENTS.forEach(a=>{
+    const unlocked=!!save.achievements[a.id];
+    const card=document.createElement('div');
+    card.className=`rounded-2xl p-3 md:p-4 border-2 flex items-center gap-3 ${unlocked?'bg-gradient-to-br from-yellow-400/30 to-amber-500/30 border-yellow-300/60':'bg-white/5 border-white/15'}`;
+    card.innerHTML=`<div class="text-4xl md:text-5xl ${unlocked?'':'grayscale opacity-40'}">${a.emoji}</div><div class="flex-1 min-w-0"><div class="text-white font-extrabold text-sm md:text-base ${unlocked?'':'opacity-60'}">${a.name}</div><div class="text-white/70 text-[11px] md:text-xs font-semibold ${unlocked?'':'opacity-60'}">${a.desc}</div></div><div class="text-2xl">${unlocked?'✅':'🔒'}</div>`;
+    container.appendChild(card);
+  });
+}
+function showStory(){
+  ensureAudio();sfxTap();
+  renderStories();hideAllScreens();
+  $('storyScreen').classList.remove('hidden');$('storyScreen').classList.add('flex');
+}
+function renderStories(){
+  const container=$('storyContainer');container.innerHTML='';
+  const unlockedCount=Object.keys(save.storyPagesUnlocked).length;
+  const totalStars=getTotalStars();
+  const header=document.createElement('div');
+  header.className='glass rounded-2xl p-4 text-center';
+  header.innerHTML=`<div class="text-3xl mb-1">📖</div><div class="text-white font-extrabold text-lg">Cerita Kucing Pintar</div><div class="text-white/70 text-sm font-semibold mt-1">${unlockedCount} dari ${STORY_PAGES.length} halaman terbuka</div><div class="text-white/60 text-xs mt-1">Dapatkan 3 bintang untuk membuka halaman baru!</div>`;
+  container.appendChild(header);
+  STORY_PAGES.forEach((pg,i)=>{
+    const unlocked=!!save.storyPagesUnlocked[pg.id];
+    const el=document.createElement('div');
+    el.className=`rounded-2xl p-4 border-2 ${unlocked?'bg-gradient-to-br from-indigo-400/20 to-purple-500/20 border-indigo-300/40':'bg-white/5 border-white/15'}`;
+    if(unlocked){
+      el.innerHTML=`<div class="flex items-start gap-3"><div class="text-4xl">${pg.e}</div><div class="flex-1"><div class="text-white/60 text-[10px] font-bold uppercase tracking-wider">Halaman ${i+1}</div><div class="text-white font-extrabold text-base md:text-lg mb-1">${pg.title}</div><div class="text-white/85 text-sm md:text-base leading-snug">${pg.text}</div></div></div><div class="flex gap-2 mt-3 justify-end"><button class="read-btn btn3d rounded-xl px-3 py-1.5 text-white bg-white/15 border border-white/20 text-sm font-bold" data-text="${pg.text.replace(/"/g,'&quot;')}">🔊 Baca</button><button class="rec-btn btn3d rounded-xl px-3 py-1.5 text-white bg-gradient-to-br from-rose-400 to-red-600 border-b-2 border-red-800 text-sm font-bold" data-text="${pg.text.replace(/"/g,'&quot;')}">🎤 Rekam</button></div>`;
+    }else{
+      el.innerHTML=`<div class="flex items-center gap-3"><div class="text-4xl opacity-30">🔒</div><div class="flex-1"><div class="text-white/60 text-[10px] font-bold uppercase tracking-wider">Halaman ${i+1}</div><div class="text-white/50 font-extrabold">Terkunci</div><div class="text-white/40 text-xs">Butuh ${(i+1)*3} bintang (kamu: ${totalStars})</div></div></div>`;
+    }
+    container.appendChild(el);
+  });
+  container.querySelectorAll('.read-btn').forEach(btn=>btn.addEventListener('click',()=>{ensureAudio();speak(btn.dataset.text,0.85,1.1);}));
+  container.querySelectorAll('.rec-btn').forEach(btn=>btn.addEventListener('click',()=>{ensureAudio();quickRecord(btn.dataset.text);}));
+}
+function checkDailyGift(){
+  const today=todayStr();
+  if(save.lastGift===today)return;
+  const roll=Math.random();
+  let giftType,giftValue,giftMsg,giftEmoji;
+  if(roll<0.5){giftType='coins';giftValue=20+Math.floor(Math.random()*30);giftMsg=`Kamu dapat ${giftValue} koin!`;giftEmoji='🪙';}
+  else if(roll<0.8){giftType='bigcoins';giftValue=50+Math.floor(Math.random()*50);giftMsg=`Jackpot! ${giftValue} koin!`;giftEmoji='💰';}
+  else{giftType='collectible';const c=pickCollectible();giftValue=c;giftMsg=`Kamu dapat karakter ${c.name}!`;giftEmoji=c.emoji;}
+  $('giftMsg').textContent='Kamu hebat sudah kembali hari ini! Tekan tombol untuk hadiahnya.';
+  $('giftScreen').classList.remove('hidden');$('giftScreen').classList.add('flex');
+  $('giftIcon').textContent='🎁';
+  $('btnClaimGift').textContent='Buka Hadiah! 🎉';
+  $('btnClaimGift').onclick=()=>{
+    sfxGift();
+    if(giftType==='coins'||giftType==='bigcoins'){save.coins+=giftValue;$('giftIcon').textContent=giftEmoji;$('giftMsg').textContent=giftMsg;}
+    else{
+      if(!save.collection[giftValue.id])save.collection[giftValue.id]=1;
+      else{save.collection[giftValue.id]++;save.coins+=15;}
+      $('giftIcon').textContent=giftEmoji;$('giftMsg').textContent=giftMsg+' (Bonus +15 koin)';
+    }
+    save.lastGift=today;saveGame();refreshMenuStats();
+    $('btnClaimGift').textContent='Hore! ✨';
+    $('btnClaimGift').onclick=()=>{
+      $('giftScreen').classList.add('hidden');$('giftScreen').classList.remove('flex');
+      checkAchievements();
+    };
+  };
+}
+function showSettings(){
+  ensureAudio();sfxTap();
+  updateSettingsUI();
+  hideAllScreens();
+  $('settingsScreen').classList.remove('hidden');$('settingsScreen').classList.add('flex');
+}
+function updateSettingsUI(){
+  const sfxBtn=$('toggleSfx');
+  if(soundOn){sfxBtn.style.background='linear-gradient(90deg,#34d399,#10b981)';sfxBtn.firstElementChild.style.left='calc(100% - 28px)';}
+  else{sfxBtn.style.background='rgba(255,255,255,.2)';sfxBtn.firstElementChild.style.left='4px';}
+  const bgmBtn=$('toggleBgm');
+  if(BGM.enabled){bgmBtn.style.background='linear-gradient(90deg,#a855f7,#ec4899)';bgmBtn.firstElementChild.style.left='calc(100% - 28px)';}
+  else{bgmBtn.style.background='rgba(255,255,255,.2)';bgmBtn.firstElementChild.style.left='4px';}
+  $('bgmVolume').value=save.settings.bgmVol;
+  $('bgmVolLabel').textContent=save.settings.bgmVol+'%';
+}
+$('toggleSfx').addEventListener('click',()=>{
+  soundOn=!soundOn;save.settings.sfxOn=soundOn;saveGame();
+  $('btnSound').textContent=soundOn?'🔊':'🔇';
+  $('btnSound').classList.toggle('opacity-50',!soundOn);
+  updateSettingsUI();
+  if(!soundOn&&'speechSynthesis' in window)speechSynthesis.cancel();
+  else sfxTap();
+});
+$('toggleBgm').addEventListener('click',()=>{
+  ensureAudio();
+  if(BGM.enabled){
+    BGM.stop();save.settings.bgmOn=false;
+    $('btnMusicHud').textContent='🎵';$('btnMusicHud').classList.add('opacity-50');
+  }else{
+    BGM.start();save.settings.bgmOn=true;
+    $('btnMusicHud').textContent='🎶';$('btnMusicHud').classList.remove('opacity-50');
+  }
+  saveGame();updateSettingsUI();
+});
+$('bgmVolume').addEventListener('input',(e)=>{
+  const v=parseInt(e.target.value,10);
+  save.settings.bgmVol=v;BGM.setVolume(v);
+  $('bgmVolLabel').textContent=v+'%';
+  saveGame();
+});
+$('btnRecStart').addEventListener('click',async()=>{
+  ensureAudio();
+  if(mediaRecorder&&mediaRecorder.state==='recording'){stopRecording();return;}
+  const ok=await startRecording((blob)=>{
+    if($('btnRecPlay')){$('btnRecPlay').disabled=false;$('btnRecPlay').classList.remove('opacity-40');}
+    if($('btnRecClear')){$('btnRecClear').disabled=false;$('btnRecClear').classList.remove('opacity-40');}
+    if($('recStatus'))$('recStatus').textContent='✅ Rekaman siap! Tekan ▶️ untuk memutar.';
+  });
+  if(!ok&&$('recStatus'))$('recStatus').textContent='❌ Tidak bisa akses mikrofon.';
+});
+$('btnRecPlay').addEventListener('click',()=>{ensureAudio();playRecorded();});
+$('btnRecClear').addEventListener('click',()=>{sfxTap();clearRecorded();});
+$('btnRecord').addEventListener('click',()=>{ensureAudio();quickRecord(S.current?S.current.answer:'');});
+$('btnResetProgress').addEventListener('click',()=>{
+  sfxTap();
+  $('confirmTitle').textContent='Hapus Semua Progres?';
+  $('confirmMsg').textContent='Semua bintang, koin, koleksi, pencapaian, cerita, dan progres belajar akan hilang. Tindakan ini tidak bisa dibatalkan.';
+  $('confirmDialog').classList.remove('hidden');$('confirmDialog').classList.add('flex');
+});
+$('btnConfirmCancel').addEventListener('click',()=>{sfxTap();$('confirmDialog').classList.add('hidden');$('confirmDialog').classList.remove('flex');});
+$('btnConfirmYes').addEventListener('click',()=>{
+  sfxTap();
+  try{localStorage.removeItem(SAVE_KEY);}catch(e){}
+  BGM.stop();
+  save={
+    levels:{},coins:0,streak:0,lastPlayed:null,lastGift:null,
+    collection:{},ownedHats:['none'],ownedColors:['gold'],equipped:{hat:'none',color:'gold'},
+    achievements:{},storyPagesUnlocked:{},
+  learned:{letters:{},syllables:{},words:{},sentences:{}},
+    totalCorrect:0,totalLevelsCompleted:0,totalPerfectLevels:0,totalGamesPlayed:0,maxCombo:0,
+    history:{},
+    settings:{sfxOn:true,bgmOn:false,bgmVol:50}
+  };
+  mascot.setHat('none');mascot.setColor('#fbbf24');
+  soundOn=true;
+  $('btnSound').textContent='🔊';$('btnSound').classList.remove('opacity-50');
+  $('btnMusicHud').textContent='🎵';$('btnMusicHud').classList.add('opacity-50');
+  refreshMenuStats();$('hudCoins').textContent=0;
+  $('confirmDialog').classList.add('hidden');$('confirmDialog').classList.remove('flex');
+  showToast('🗑️ Progres direset!','warn');
+  setTimeout(()=>goMenu(),500);
+});
+$('btnSettings').addEventListener('click',showSettings);
+$('btnSettingsBack').addEventListener('click',goMenu);
+$('btnAdventure').addEventListener('click',showAdventureMap);
+$('btnFreeplay').addEventListener('click',showFreeplay);
+$('btnAlbum').addEventListener('click',showAlbum);
+$('btnShop').addEventListener('click',showShop);
+$('btnAchievements').addEventListener('click',showAchievements);
+$('btnStory').addEventListener('click',showStory);
+$('btnAdventureBack').addEventListener('click',goMenu);
+$('btnFreeplayBack').addEventListener('click',goMenu);
+$('btnAlbumBack').addEventListener('click',goMenu);
+$('btnShopBack').addEventListener('click',goMenu);
+$('btnAchBack').addEventListener('click',goMenu);
+$('btnStoryBack').addEventListener('click',goMenu);
+$('btnHint').addEventListener('click',useHint);
+$('btnHome').addEventListener('click',()=>{sfxTap();goMenu();});
+$('btnBackMenu').addEventListener('click',()=>{sfxTap();goMenu();});
+$('btnPlayAgain').addEventListener('click',()=>{
+  sfxTap();
+  if(S.adventure)startLevel(S.adventure.worldId,S.adventure.levelId);
+  else if(S.mode)startGame(S.mode,S.difficulty,S.totalQ);
+});
+$('btnNextLevel').addEventListener('click',(e)=>{
+  sfxTap();
+  const w=e.currentTarget.dataset.worldId;const l=e.currentTarget.dataset.levelId;
+  if(w&&l)startLevel(w,l);
+});
+$('btnRepeat').addEventListener('click',(e)=>{e.stopPropagation();ensureAudio();if(S.current)speak(S.current.speakText,0.8,1.1);});
+$('btnSound').addEventListener('click',()=>{
+  soundOn=!soundOn;save.settings.sfxOn=soundOn;saveGame();
+  $('btnSound').textContent=soundOn?'🔊':'🔇';
+  $('btnSound').classList.toggle('opacity-50',!soundOn);
+  if(!soundOn&&'speechSynthesis' in window)speechSynthesis.cancel();
+  else sfxTap();
+});
+$('btnMusicHud').addEventListener('click',()=>{
+  ensureAudio();
+  if(BGM.enabled){
+    BGM.stop();save.settings.bgmOn=false;
+    $('btnMusicHud').textContent='🎵';$('btnMusicHud').classList.add('opacity-50');
+  }else{
+    BGM.start();save.settings.bgmOn=true;
+    $('btnMusicHud').textContent='🎶';$('btnMusicHud').classList.remove('opacity-50');
+  }
+  saveGame();
+});
+
+/* RENDER LOOP */
+scene.onBeforeRenderObservable.add(()=>{
+  const dt=Math.min(engine.getDeltaTime(),50)/1000;
+  const t=performance.now()/1000;
+  if(tweens.length){
+    tweens=tweens.filter(tw=>{
+      tw.e+=dt;
+      const p=Math.min(tw.e/tw.dur,1);
+      try{tw.onUpdate(p);}catch(e){}
+      if(p>=1){try{tw.onDone&&tw.onDone();}catch(e){}return false;}
+      return true;
+    });
+  }
+  activeCards.forEach(c=>{
+    const hoverLift=(c.hovered&&!c.dead)?1:0;
+    const bobY=Math.sin(t*1.5+c.floatPhase)*0.16*(c.dead?0.2:1);
+    const bobR=Math.sin(t*0.9+c.floatPhase)*0.10;
+    c.root.position.y=c.baseY+bobY+hoverLift*0.28;
+    c.root.position.x=c.baseX+(c.shakeX||0);
+    c.root.rotation.y=bobR*(c.dead?0.2:1);
+    c.root.rotation.x=Math.sin(t*1.1+c.floatPhase)*0.05;
+  });
+  mascot.root.position.y=-3.2+Math.sin(t*1.7)*0.20;
+  mascot.root.rotation.y=Math.sin(t*0.6)*0.28;
+  mascot.root.rotation.z=Math.sin(t*1.1)*0.05;
+  if(hoveredCard){
+    const dy=Math.max(-0.12,Math.min(0.12,(hoveredCard.root.position.y-mascot.root.position.y)*0.014));
+    mascot.eyes.forEach(p=>{p.position.y+=(0.34+dy-p.position.y)*0.15;});
+  }else{
+    mascot.eyes.forEach(p=>{p.position.y+=(0.34-p.position.y)*0.08;});
+  }
+  camera.alpha=Math.PI/2+Math.sin(t*0.18)*0.035;
+});
+engine.runRenderLoop(()=>scene.render());
+
+function onResize(){engine.resize();if(activeCards.length)layoutCards();}
+window.addEventListener('resize',onResize);
+window.addEventListener('orientationchange',()=>setTimeout(onResize,250));
+onResize();
+setTimeout(()=>{engine.resize();},300);
+document.addEventListener('gesturestart',e=>e.preventDefault());
+
+/* =========================================================
+   BELAJAR YUK! — 5 TAB EDUKASI (terintegrasi)
+   - memakai data LETTERS / SYLLABLES / WORDS yang sudah ada
+   - progres belajar tersimpan (save.learned) + bonus 1 koin per item baru
+   - suara dibaca dengan ejaan Indonesia (be, ce, de, ...)
+   ========================================================= */
+const BELAJAR_VOWELS=['A','I','U','E','O'];
+const LETTER_NAME={A:'a',B:'be',C:'ce',D:'de',E:'e',F:'ef',G:'ge',H:'ha',I:'i',J:'je',K:'ka',L:'el',M:'em',
+  N:'en',O:'o',P:'pe',Q:'ki',R:'er',S:'es',T:'te',U:'u',V:'ve',W:'we',X:'eks',Y:'ye',Z:'zet'};
+const BELAJAR_SENTENCES=[
+  {emoji:'🍚',words:['Adik','makan','nasi.'],           hint:'Siapa? Adik · Melakukan? Makan · Apa? Nasi'},
+  {emoji:'🍳',words:['Ibu','memasak','di','dapur.'],    hint:'Siapa? Ibu · Melakukan? Memasak · Di mana? Dapur'},
+  {emoji:'📰',words:['Ayah','membaca','koran.'],        hint:'Siapa? Ayah · Melakukan? Membaca · Apa? Koran'},
+  {emoji:'🐱',words:['Kucing','minum','susu.'],         hint:'Siapa? Kucing · Melakukan? Minum · Apa? Susu'},
+  {emoji:'🐦',words:['Burung','terbang','tinggi.'],     hint:'Siapa? Burung · Melakukan? Terbang · Bagaimana? Tinggi'},
+  {emoji:'🐟',words:['Ikan','berenang','di','air.'],    hint:'Siapa? Ikan · Melakukan? Berenang · Di mana? Air'}
+];
+const BELAJAR_GROUPS=[
+  {name:'🐾 Hewan',          keys:['KUCING','GAJAH','IKAN','DOMBA','SAPI','ULAR','ZEBRA','KUDA','BURUNG']},
+  {name:'🍎 Makanan',        keys:['JERUK','NANAS','PISANG','APEL','WORTEL','ROTI']},
+  {name:'🏠 Benda',          keys:['BOLA','SEPATU','TOPI','EMBER','LAMPU','MEJA','BAJU','BUKU','GELAS','SENDOK','KURSI','PINTU']},
+  {name:'🌸 Tubuh & Alam',   keys:['MATA','KAKI','BUNGA']}
+];
+let belajarTab='alphabet';
+let belajarToken=0; /* membatalkan animasi baca saat pindah tab / keluar layar */
+
+const belajarAlive=(tok)=>tok===belajarToken && !$('belajarScreen').classList.contains('hidden');
+const belajarWait=(ms)=>new Promise(r=>setTimeout(r,ms));
+function belajarPop(el){el.classList.remove('animate-pop');void el.offsetWidth;el.classList.add('animate-pop');setTimeout(()=>el.classList.remove('animate-pop'),500);}
+function speakLetter(l,w){speak(`${LETTER_NAME[l]||l.toLowerCase()} untuk ${w.toLowerCase()}`,0.8,1.1);}
+
+/* ---- progres belajar ---- */
+function belajarTotal(cat){
+  return cat==='letters'?LETTERS.length:cat==='syllables'?SYLLABLES.length:cat==='words'?WORDS.length:BELAJAR_SENTENCES.length;
+}
+function belajarProgressHTML(cat){
+  const done=Object.keys(save.learned[cat]).length,total=belajarTotal(cat);
+  return `<div class="glass rounded-2xl px-3 py-2 mb-4 flex items-center gap-3">
+    <span class="text-xl">🌟</span>
+    <div class="flex-1">
+      <div class="flex justify-between text-[11px] md:text-xs font-bold text-white/80 mb-1"><span>Sudah dipelajari</span><span id="belajarProgTxt">${done}/${total}</span></div>
+      <div class="h-2.5 rounded-full bg-black/40 overflow-hidden"><div id="belajarProgBar" class="h-full rounded-full bg-gradient-to-r from-emerald-400 to-yellow-300 transition-all duration-500" style="width:${Math.round(done/total*100)}%"></div></div>
+    </div>
+    <span class="text-[10px] text-white/50 font-bold hidden md:inline">+1 🪙 tiap item baru</span>
+  </div>`;
+}
+function applyLearnedMarks(cat){
+  $('belajarContent').querySelectorAll('[data-key]').forEach(el=>{
+    if(save.learned[cat][el.dataset.key]&&!el.querySelector('.learned-mark'))addLearnedMark(el);
+  });
+}
+function addLearnedMark(el){
+  const m=document.createElement('span');
+  m.className='learned-mark absolute bottom-1.5 right-1.5 text-sm leading-none';
+  m.textContent='✅';
+  el.appendChild(m);
+}
+function markLearned(cat,key,el){
+  if(save.learned[cat][key])return;
+  save.learned[cat][key]=1;
+  save.coins++;
+  saveGame();refreshMenuStats();
+  sfxCoin();
+  if(el&&!el.querySelector('.learned-mark'))addLearnedMark(el);
+  const total=belajarTotal(cat),done=Object.keys(save.learned[cat]).length;
+  const bar=$('belajarProgBar'),txt=$('belajarProgTxt');
+  if(bar)bar.style.width=Math.round(done/total*100)+'%';
+  if(txt)txt.textContent=done+'/'+total;
+  const c=$('belajarCoins');if(c)c.textContent=save.coins;
+}
+
+/* ---- navigasi ---- */
+function showBelajar(tab='alphabet'){
+  ensureAudio();sfxTap();
+  hideAllScreens();
+  $('belajarScreen').classList.remove('hidden');
+  $('belajarScreen').classList.add('flex');
+  $('belajarCoins').textContent=save.coins;
+  setBelajarTab(tab);
+  BGM.switchTo('menu');
+}
+function setBelajarTab(tab){
+  belajarToken++;belajarTab=tab;
+  try{speechSynthesis.cancel();}catch(e){}
+  document.querySelectorAll('.belajar-tab').forEach(b=>{
+    const on=b.dataset.tab===tab;
+    b.style.background=on?'linear-gradient(180deg,#fbbf24,#f59e0b)':'rgba(255,255,255,.10)';
+    b.style.borderColor=on?'#fff':'transparent';
+    b.style.color=on?'#3b1d00':'#fff';
+    b.style.boxShadow=on?'0 0 16px rgba(251,191,36,.6)':'none';
+    if(on)b.scrollIntoView({block:'nearest',inline:'center'});
+  });
+  ({alphabet:renderBelajarAlphabet,vocal:renderBelajarVocal,syllable:renderBelajarSyllable,
+    word:renderBelajarWord,sentence:renderBelajarSentence}[tab]||renderBelajarAlphabet)();
+  $('belajarScreen').scrollTop=0;
+}
+
+/* ---- TAB 1: A–Z ---- */
+function renderBelajarAlphabet(){
+  $('belajarContent').innerHTML=`
+    <div class="text-center mb-4">
+      <h3 class="text-2xl md:text-3xl font-extrabold text-white">Ayo Kenali Huruf A – Z! 🔤</h3>
+      <p class="text-white/70 text-sm mt-1">Klik kartu untuk mendengar suaranya • <span class="text-rose-300 font-bold">Vokal (merah)</span> · <span class="text-sky-300 font-bold">Konsonan (biru)</span></p>
+    </div>
+    ${belajarProgressHTML('letters')}
+    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+      ${LETTERS.map(item=>{
+        const v=BELAJAR_VOWELS.includes(item.l);
+        const bg=v?'from-rose-400 to-pink-600 border-rose-900':'from-sky-400 to-blue-600 border-blue-900';
+        return `<button class="letter-card relative rounded-3xl p-3 md:p-4 text-left btn3d shadow-2xl border-b-[6px] bg-gradient-to-br ${bg}" data-key="${item.l}" data-letter="${item.l}" data-word="${item.w}">
+          <div class="flex items-center gap-3">
+            <div class="w-14 h-14 md:w-16 md:h-16 rounded-2xl bg-white/25 border-2 border-white/70 grid place-items-center shrink-0"><span class="text-white text-2xl md:text-3xl font-extrabold drop-shadow">${item.l}</span></div>
+            <div class="min-w-0"><div class="text-3xl md:text-4xl leading-none">${item.e}</div><div class="text-white font-extrabold text-xs md:text-sm mt-1 truncate">${item.w}</div></div>
+          </div>
+          ${v?'<div class="absolute top-2 right-2 bg-white text-rose-600 text-[9px] font-extrabold px-1.5 py-0.5 rounded-full">VOKAL</div>':''}
+        </button>`;}).join('')}
+    </div>`;
+  applyLearnedMarks('letters');
+  $('belajarContent').querySelectorAll('.letter-card').forEach(c=>c.addEventListener('click',()=>{
+    sfxTap();speakLetter(c.dataset.letter,c.dataset.word);belajarPop(c);markLearned('letters',c.dataset.key,c);
+  }));
+}
+
+/* ---- TAB 2: VOKAL & KONSONAN ---- */
+function renderBelajarVocal(){
+  const vowels=LETTERS.filter(l=>BELAJAR_VOWELS.includes(l.l));
+  const cons=LETTERS.filter(l=>!BELAJAR_VOWELS.includes(l.l));
+  $('belajarContent').innerHTML=`
+    <div class="text-center mb-4">
+      <h3 class="text-2xl md:text-3xl font-extrabold text-white">🎵 Vokal &amp; Konsonan</h3>
+      <p class="text-white/70 text-sm mt-1">Huruf <span class="text-rose-300 font-bold">vokal</span> adalah huruf hidup, huruf <span class="text-sky-300 font-bold">konsonan</span> adalah huruf mati.</p>
+    </div>
+    ${belajarProgressHTML('letters')}
+    <div class="glass rounded-3xl p-4 mb-4 border-2 border-rose-400/40">
+      <div class="flex items-center gap-3 mb-3"><div class="text-4xl md:text-5xl">🎵</div>
+        <div><h4 class="text-white font-extrabold text-lg md:text-xl">Huruf Vokal</h4><p class="text-white/70 text-xs md:text-sm">Ada <span class="text-rose-300 font-bold">${vowels.length} huruf</span> — mudah dinyanyikan!</p></div></div>
+      <div class="grid grid-cols-5 gap-2 md:gap-3">
+        ${vowels.map(i=>`<button class="vocal-card relative rounded-2xl bg-gradient-to-br from-rose-400 to-pink-600 p-2 md:p-3 text-center btn3d shadow-lg border-b-4 border-rose-900" data-key="${i.l}" data-letter="${i.l}" data-word="${i.w}">
+          <div class="text-white font-extrabold text-2xl md:text-3xl">${i.l}</div><div class="text-xl md:text-2xl mt-1">${i.e}</div></button>`).join('')}
+      </div>
+      <button id="btnSingVowels" class="btn3d mt-3 w-full rounded-xl bg-black/30 py-2 text-white/90 text-sm font-bold">🎤 Nyanyikan: A · I · U · E · O</button>
+    </div>
+    <div class="glass rounded-3xl p-4 border-2 border-sky-400/40">
+      <div class="flex items-center gap-3 mb-3"><div class="text-4xl md:text-5xl">🔵</div>
+        <div><h4 class="text-white font-extrabold text-lg md:text-xl">Huruf Konsonan</h4><p class="text-white/70 text-xs md:text-sm">Ada <span class="text-sky-300 font-bold">${cons.length} huruf</span> — dibaca dengan bantuan vokal</p></div></div>
+      <div class="grid grid-cols-5 md:grid-cols-7 gap-2">
+        ${cons.map(i=>`<button class="consonant-card relative rounded-2xl bg-gradient-to-br from-sky-400 to-blue-600 p-2 text-center btn3d shadow-lg border-b-4 border-blue-900" data-key="${i.l}" data-letter="${i.l}" data-word="${i.w}">
+          <div class="text-white font-extrabold text-lg md:text-xl">${i.l}</div><div class="text-base md:text-lg">${i.e}</div></button>`).join('')}
+      </div>
+    </div>
+    <div class="glass rounded-3xl p-4 mt-4">
+      <h4 class="text-white font-extrabold text-lg mb-2">💡 Konsonan + Vokal</h4>
+      <p class="text-white/80 text-sm mb-3">Kalau huruf mati bertemu huruf hidup, mereka dibaca bersama! Pilih konsonan lalu vokal:</p>
+      <div class="flex items-center justify-center gap-2 mb-3 flex-wrap" id="cvPickVowel">
+        ${BELAJAR_VOWELS.map(v=>`<button class="cv-v btn3d w-10 h-10 rounded-xl bg-rose-500 text-white font-extrabold border-b-4 border-rose-900" data-v="${v}">${v}</button>`).join('')}
+      </div>
+      <div class="flex items-center justify-center gap-2 md:gap-3 flex-wrap">
+        <button id="cvC" class="btn3d bg-sky-500 rounded-2xl w-12 h-12 md:w-14 md:h-14 grid place-items-center text-white font-extrabold text-2xl shadow-lg" title="Ganti konsonan">B</button>
+        <span class="text-white text-2xl">+</span>
+        <div id="cvV" class="bg-rose-500 rounded-2xl w-12 h-12 md:w-14 md:h-14 grid place-items-center text-white font-extrabold text-2xl shadow-lg">A</div>
+        <span class="text-white text-2xl">=</span>
+        <button id="cvR" class="btn3d bg-gradient-to-br from-emerald-400 to-green-600 rounded-2xl px-4 h-12 md:h-14 grid place-items-center text-white font-extrabold text-2xl shadow-lg">BA</button>
+      </div>
+      <p class="text-white/50 text-[11px] text-center mt-2">Ketuk huruf biru untuk ganti konsonan, ketuk hijau untuk mendengar 🔊</p>
+    </div>`;
+  applyLearnedMarks('letters');
+  $('belajarContent').querySelectorAll('.vocal-card,.consonant-card').forEach(c=>c.addEventListener('click',()=>{
+    sfxTap();speakLetter(c.dataset.letter,c.dataset.word);belajarPop(c);markLearned('letters',c.dataset.key,c);
+  }));
+  $('btnSingVowels').addEventListener('click',async()=>{
+    const tok=belajarToken;sfxTap();
+    const cards=[...$('belajarContent').querySelectorAll('.vocal-card')];
+    for(const c of cards){
+      if(!belajarAlive(tok))return;
+      c.style.transform='scale(1.2)';speak(LETTER_NAME[c.dataset.letter],0.6,1.25);
+      await belajarWait(750);c.style.transform='';
+    }
+  });
+  /* mini-latihan konsonan + vokal */
+  let cIdx=cons.findIndex(x=>x.l==='B'),vSel='A';
+  const sync=()=>{const c=cons[cIdx].l;$('cvC').textContent=c;$('cvV').textContent=vSel;$('cvR').textContent=c+vSel;};
+  const sayCV=()=>speak((cons[cIdx].l+vSel).toLowerCase(),0.7,1.2);
+  $('cvC').addEventListener('click',()=>{sfxTap();cIdx=(cIdx+1)%cons.length;sync();sayCV();});
+  $('cvR').addEventListener('click',()=>{sfxTap();belajarPop($('cvR'));sayCV();});
+  $('cvPickVowel').querySelectorAll('.cv-v').forEach(b=>b.addEventListener('click',()=>{sfxTap();vSel=b.dataset.v;sync();sayCV();}));
+}
+
+/* ---- TAB 3: SUKU KATA ---- */
+function renderBelajarSyllable(){
+  $('belajarContent').innerHTML=`
+    <div class="text-center mb-4">
+      <h3 class="text-2xl md:text-3xl font-extrabold text-white">🧩 Suku Kata</h3>
+      <p class="text-white/70 text-sm mt-1">Kata bisa dipecah jadi suku kata. Tepuk tangan tiap suku kata! 👏</p>
+    </div>
+    ${belajarProgressHTML('syllables')}
+    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+      ${SYLLABLES.map((ex,idx)=>`
+        <button class="syllable-card relative glass rounded-3xl p-3 text-center btn3d hover:bg-white/15" data-key="${ex.w}" data-idx="${idx}">
+          <div class="text-4xl md:text-5xl mb-2">${ex.e}</div>
+          <div class="flex items-center justify-center gap-1 flex-wrap mb-1">
+            ${ex.s.map((s,i)=>`<span class="syllable-badge inline-block bg-gradient-to-br from-amber-400 to-orange-500 text-white font-extrabold text-sm md:text-lg px-2.5 py-1 rounded-xl shadow-lg border-b-2 border-amber-700 transition-all">${s}</span>${i<ex.s.length-1?'<span class="text-white/60 font-bold">-</span>':''}`).join('')}
+          </div>
+          <div class="text-white/85 text-xs font-bold">${ex.w} · ${ex.s.length} ketukan</div>
+        </button>`).join('')}
+    </div>
+    <div class="glass rounded-3xl p-4 mt-5">
+      <h4 class="text-white font-extrabold text-lg mb-2">👏 Cara Membaca</h4>
+      <p class="text-white/80 text-sm">Setiap suku kata dibaca satu tepukan. Contoh:</p>
+      <div class="flex items-center justify-center gap-3 mt-3 flex-wrap">
+        <div class="text-center"><div class="text-3xl">👏</div><div class="bg-amber-500 text-white font-extrabold text-lg px-3 py-1 rounded-xl mt-1 shadow-lg">BO</div></div>
+        <div class="text-center"><div class="text-3xl">👏</div><div class="bg-amber-500 text-white font-extrabold text-lg px-3 py-1 rounded-xl mt-1 shadow-lg">LA</div></div>
+        <span class="text-white text-2xl">→</span><div class="text-3xl">⚽</div><div class="text-white font-extrabold text-xl">BOLA</div>
+      </div>
+    </div>`;
+  applyLearnedMarks('syllables');
+  $('belajarContent').querySelectorAll('.syllable-card').forEach(card=>card.addEventListener('click',async()=>{
+    const tok=++belajarToken; /* klik kartu lain menghentikan animasi sebelumnya */
+    sfxTap();
+    const ex=SYLLABLES[+card.dataset.idx];
+    const badges=card.querySelectorAll('.syllable-badge');
+    for(let i=0;i<ex.s.length;i++){
+      if(!belajarAlive(tok))return;
+      badges[i].style.transform='scale(1.35)';
+      badges[i].style.background='linear-gradient(135deg,#fde047,#f59e0b)';
+      sfxTap();speak(ex.s[i].toLowerCase(),0.7,1.2);
+      await belajarWait(700);
+      badges[i].style.transform='scale(1)';
+      badges[i].style.background='linear-gradient(135deg,#fbbf24,#f97316)';
+    }
+    if(!belajarAlive(tok))return;
+    await belajarWait(150);
+    speak(ex.w.toLowerCase(),0.85,1.15);
+    markLearned('syllables',card.dataset.key,card);
+  }));
+}
+
+/* ---- TAB 4: KATA ---- */
+function renderBelajarWord(){
+  const used=new Set();
+  const groups=BELAJAR_GROUPS.map(g=>({name:g.name,items:WORDS.filter(w=>g.keys.includes(w.w))}));
+  groups.forEach(g=>g.items.forEach(i=>used.add(i.w)));
+  const rest=WORDS.filter(w=>!used.has(w.w)); /* jaga-jaga: kata baru tidak hilang */
+  if(rest.length)groups.push({name:'✨ Lainnya',items:rest});
+  $('belajarContent').innerHTML=`
+    <div class="text-center mb-4">
+      <h3 class="text-2xl md:text-3xl font-extrabold text-white">📚 Ayo Baca Kata</h3>
+      <p class="text-white/70 text-sm mt-1">Kenali kata dari gambar. Klik untuk mendengarkan!</p>
+    </div>
+    ${belajarProgressHTML('words')}
+    ${groups.filter(g=>g.items.length).map(g=>`
+      <div class="mb-5">
+        <h4 class="text-white font-extrabold text-lg mb-2">${g.name}</h4>
+        <div class="grid grid-cols-3 md:grid-cols-5 gap-2 md:gap-3">
+          ${g.items.map(i=>`<button class="word-card relative glass rounded-2xl p-2 md:p-3 text-center btn3d hover:bg-white/15" data-key="${i.w}" data-word="${i.w}">
+            <div class="text-4xl md:text-5xl mb-1">${i.e}</div><div class="text-white font-extrabold text-xs md:text-sm truncate">${i.w}</div></button>`).join('')}
+        </div>
+      </div>`).join('')}
+    <div class="glass rounded-3xl p-4">
+      <h4 class="text-white font-extrabold text-lg mb-2">💡 Apa itu Kata?</h4>
+      <p class="text-white/80 text-sm">Kata adalah kumpulan huruf yang punya arti. Contoh: <span class="text-yellow-300 font-extrabold">B-O-L-A</span> dibaca <span class="text-yellow-300 font-extrabold">BOLA</span> ⚽</p>
+    </div>`;
+  applyLearnedMarks('words');
+  $('belajarContent').querySelectorAll('.word-card').forEach(c=>c.addEventListener('click',()=>{
+    sfxTap();speak(c.dataset.word.toLowerCase(),0.8,1.15);belajarPop(c);markLearned('words',c.dataset.key,c);
+  }));
+}
+
+/* ---- TAB 5: KALIMAT ---- */
+function renderBelajarSentence(){
+  $('belajarContent').innerHTML=`
+    <div class="text-center mb-4">
+      <h3 class="text-2xl md:text-3xl font-extrabold text-white">✨ Ayo Baca Kalimat</h3>
+      <p class="text-white/70 text-sm mt-1">Kalimat adalah kumpulan kata yang bermakna. Klik untuk dibacakan kata demi kata!</p>
+    </div>
+    ${belajarProgressHTML('sentences')}
+    <div class="space-y-3">
+      ${BELAJAR_SENTENCES.map((s,i)=>`
+        <button class="sentence-card relative glass rounded-3xl p-3 md:p-4 text-left btn3d hover:bg-white/15 w-full" data-key="${i}" data-idx="${i}">
+          <div class="flex items-center gap-3 md:gap-4">
+            <div class="text-4xl md:text-6xl shrink-0">${s.emoji}</div>
+            <div class="flex-1 min-w-0">
+              <div class="flex flex-wrap gap-1.5 mb-1">
+                ${s.words.map(w=>`<span class="sentence-word inline-block bg-white/15 border border-white/25 rounded-xl px-2.5 py-1 text-white font-extrabold text-sm md:text-base transition-all">${w}</span>`).join('')}
+              </div>
+              <div class="text-white/60 text-[10px] md:text-xs">${s.hint}</div>
+            </div>
+            <div class="text-2xl text-white/60 shrink-0">🔊</div>
+          </div>
+        </button>`).join('')}
+    </div>
+    <div class="glass rounded-3xl p-4 mt-4">
+      <h4 class="text-white font-extrabold text-lg mb-2">📝 Susunan Kalimat</h4>
+      <p class="text-white/80 text-sm mb-2">Kalimat biasanya terdiri dari:</p>
+      <div class="grid grid-cols-3 gap-2 mt-2">
+        <div class="bg-emerald-500/20 border border-emerald-400/40 rounded-xl p-2 text-center"><div class="text-2xl">👤</div><div class="text-white font-extrabold text-xs md:text-sm mt-1">Siapa?</div></div>
+        <div class="bg-sky-500/20 border border-sky-400/40 rounded-xl p-2 text-center"><div class="text-2xl">🏃</div><div class="text-white font-extrabold text-xs md:text-sm mt-1">Melakukan apa?</div></div>
+        <div class="bg-amber-500/20 border border-amber-400/40 rounded-xl p-2 text-center"><div class="text-2xl">🍎</div><div class="text-white font-extrabold text-xs md:text-sm mt-1">Apa / Di mana?</div></div>
+      </div>
+      <p class="text-white/60 text-xs mt-3">Ingat: kalimat diawali <b>huruf kapital</b> dan diakhiri <b>tanda titik (.)</b></p>
+    </div>`;
+  applyLearnedMarks('sentences');
+  $('belajarContent').querySelectorAll('.sentence-card').forEach(card=>card.addEventListener('click',async()=>{
+    const tok=++belajarToken;sfxTap();
+    const s=BELAJAR_SENTENCES[+card.dataset.idx];
+    const els=card.querySelectorAll('.sentence-word');
+    for(let i=0;i<s.words.length;i++){
+      if(!belajarAlive(tok))return;
+      els[i].style.background='linear-gradient(135deg,#fde047,#f59e0b)';
+      els[i].style.color='#3b1d00';els[i].style.transform='scale(1.15)';
+      sfxTap();speak(s.words[i].replace('.','').toLowerCase(),0.85,1.15);
+      await belajarWait(650);
+      els[i].style.background='rgba(255,255,255,.15)';els[i].style.color='#fff';els[i].style.transform='scale(1)';
+    }
+    if(!belajarAlive(tok))return;
+    await belajarWait(250);
+    speak(s.words.join(' ').replace('.',''),0.85,1.1); /* lalu seluruh kalimat */
+    markLearned('sentences',card.dataset.key,card);
+  }));
+}
+
+/* ---- event ---- */
+document.querySelectorAll('.belajar-tab').forEach(b=>b.addEventListener('click',()=>{sfxTap();setBelajarTab(b.dataset.tab);}));
+$('btnBelajar').addEventListener('click',()=>showBelajar('alphabet'));
+$('btnBelajarBack').addEventListener('click',()=>{belajarToken++;goMenu();});
+
+/* INIT */
+refreshMenuStats();
+$('hudCoins').textContent=save.coins;
+$('btnSound').textContent=soundOn?'🔊':'🔇';
+if(!soundOn)$('btnSound').classList.add('opacity-50');
+if(save.settings.bgmOn){
+  $('btnMusicHud').textContent='🎶';
+  const startOnce=()=>{
+    ensureAudio();
+    BGM.setVolume(save.settings.bgmVol);
+    BGM.start('menu');
+    document.removeEventListener('click',startOnce);
+    document.removeEventListener('touchstart',startOnce);
+  };
+  document.addEventListener('click',startOnce,{once:true});
+  document.addEventListener('touchstart',startOnce,{once:true});
+}
+setTimeout(()=>{
+  checkDailyGift();
+},800);
+setTimeout(()=>checkAchievements(),1500);
+
+</script>
+</body>
+</html>
